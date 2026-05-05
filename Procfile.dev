@@ -1,0 +1,2 @@
+backend: cd backend && rails server -p 3001
+frontend: cd frontend && npm start
