@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_05_05_000010) do
+ActiveRecord::Schema[8.1].define(version: 2025_05_08_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -33,6 +33,29 @@ ActiveRecord::Schema[8.1].define(version: 2025_05_05_000010) do
     t.bigint "user_id", null: false
     t.index ["task_id"], name: "index_comments_on_task_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "event_attendees", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "event_id", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["event_id", "user_id"], name: "index_event_attendees_on_event_id_and_user_id", unique: true
+    t.index ["event_id"], name: "index_event_attendees_on_event_id"
+    t.index ["user_id"], name: "index_event_attendees_on_user_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "creator_id", null: false
+    t.date "event_date", null: false
+    t.bigint "project_id"
+    t.time "start_time", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_events_on_creator_id"
+    t.index ["project_id"], name: "index_events_on_project_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -62,6 +85,15 @@ ActiveRecord::Schema[8.1].define(version: 2025_05_05_000010) do
     t.string "name", null: false
     t.integer "status", default: 0, null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "subtasks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "status", default: 0, null: false
+    t.bigint "task_id", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["task_id"], name: "index_subtasks_on_task_id"
   end
 
   create_table "task_workflows", force: :cascade do |t|
@@ -129,9 +161,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_05_05_000010) do
   add_foreign_key "activity_logs", "users"
   add_foreign_key "comments", "tasks"
   add_foreign_key "comments", "users"
+  add_foreign_key "event_attendees", "events"
+  add_foreign_key "event_attendees", "users"
+  add_foreign_key "events", "projects"
+  add_foreign_key "events", "users", column: "creator_id"
   add_foreign_key "notifications", "users"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
+  add_foreign_key "subtasks", "tasks"
   add_foreign_key "task_workflows", "projects"
   add_foreign_key "tasks", "projects"
   add_foreign_key "tasks", "tasks", column: "parent_task_id"

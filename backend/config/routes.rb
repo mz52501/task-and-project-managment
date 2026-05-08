@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
   resources :tasks do
     resources :comments, only: [ :index, :create ]
-    resources :subtasks, controller: "tasks", only: [ :index ]
+    resources :subtasks, only: [ :index, :create ]
   end
 
   resources :comments, only: [ :destroy ]
@@ -23,4 +23,5 @@ Rails.application.routes.draw do
       patch :mark_read
     end
   end
+  resources :events, only: [ :index, :create, :destroy ]
 end
