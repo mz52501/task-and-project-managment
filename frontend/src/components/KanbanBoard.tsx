@@ -1,6 +1,6 @@
 import React, {useMemo} from "react";
 import PlusIcon from "../icons/PlusIcon";
-import type {Column, Id, Task} from "../types";
+import type { Column, Id, KanbanTask as Task } from "@/types";
 import ColumnContainer from "./ColumnContainer";
 import {
     DndContext,

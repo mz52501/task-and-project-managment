@@ -1,4 +1,4 @@
-import {Id, Task} from "../types";
+import { Id, KanbanTask as Task } from "@/types";
 import TrashIcon from "../icons/TrashIcon";
 import {useState} from "react";
 import {useSortable} from "@dnd-kit/sortable";

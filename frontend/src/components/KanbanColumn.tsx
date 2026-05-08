@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import TaskCard from "./TaskCard";
-import { Id, Task } from "@/types";
+import { Id, KanbanTask as Task } from "@/types";
 
 interface KanbanColumnProps {
   id: string;
