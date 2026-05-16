@@ -3,10 +3,31 @@ export type Id = string | number;
 export interface Column {
   id: Id;
   title: string;
+  position?: number;
+}
+
+export interface KanbanTaskAssignee {
+  id: string;
+  initials: string;
+  color?: string;
+}
+
+export interface KanbanTaskTag {
+  id: string;
+  name: string;
+  color: string;
 }
 
 export interface KanbanTask {
   id: Id;
   columnId: Id;
-  content: string;
+  title: string;
+  description?: string;
+  priority: "low" | "medium" | "high";
+  due_date?: string;
+  assignees?: KanbanTaskAssignee[];
+  time_tracked?: string;
+  subtask_count?: number;
+  comment_count?: number;
+  tags?: KanbanTaskTag[];
 }

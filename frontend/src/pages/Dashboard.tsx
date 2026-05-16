@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Clock, Plus, Timer, CheckCircle, Users, Calendar, TrendingUp } from "lucide-react";
+import { Clock, Plus, Timer, Calendar, TrendingUp } from "lucide-react";
 
 import QuickStats from "../components/dashboard/QuickStats";
 import RecentActivity from "../components/dashboard/RecentActivity";

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Calendar, Check, Clock, Plus, User } from "lucide-react";
 
 const Task = () => {
-  const { id } = useParams();
+  const { id: _id } = useParams();
   const [newComment, setNewComment] = useState("");
   const [newTimeEntry, setNewTimeEntry] = useState({ hours: "", description: "" });
 
