@@ -1,5 +1,5 @@
 class ProjectMember < ApplicationRecord
-  enum :role, { owner: 0, developer: 1, client: 2 }, default: :developer
+  enum :role, { owner: "owner", developer: "developer", client: "client" }, default: "developer"
 
   belongs_to :user
   belongs_to :project

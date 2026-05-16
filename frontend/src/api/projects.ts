@@ -21,7 +21,10 @@ export const createProject = async (data: CreateProjectRequest): Promise<Project
   return response.data;
 };
 
-export const updateProject = async (id: number, data: Partial<CreateProjectRequest>): Promise<Project> => {
+export const updateProject = async (
+  id: number,
+  data: Partial<CreateProjectRequest>
+): Promise<Project> => {
   const response = await client.patch<Project>(`/projects/${id}`, data);
   return response.data;
 };

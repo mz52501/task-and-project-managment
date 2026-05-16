@@ -101,7 +101,10 @@ export default function Projects() {
 
               <div className="flex gap-2 mb-4">
                 {project.tags.map((tag) => (
-                  <span key={tag} className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded-full">
+                  <span
+                    key={tag}
+                    className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded-full"
+                  >
                     {tag}
                   </span>
                 ))}
@@ -109,7 +112,10 @@ export default function Projects() {
 
               <div className="mb-4">
                 <div className="w-full bg-gray-200 h-2 rounded-full">
-                  <div className="h-2 bg-blue-600 rounded-full" style={{ width: `${project.progress}%` }} />
+                  <div
+                    className="h-2 bg-blue-600 rounded-full"
+                    style={{ width: `${project.progress}%` }}
+                  />
                 </div>
               </div>
 

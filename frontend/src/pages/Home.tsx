@@ -68,7 +68,10 @@ export default function Home() {
         <h2 className="text-2xl font-semibold mb-4 text-gray-800">Most Critical Tasks</h2>
         <ul>
           {tasks.map((task) => (
-            <li key={task.id} className="flex justify-between items-center p-3 border-b last:border-none">
+            <li
+              key={task.id}
+              className="flex justify-between items-center p-3 border-b last:border-none"
+            >
               <div className="flex items-center gap-3">
                 {getPriorityIcon(task.priority)}
                 <p className="text-lg">{task.name}</p>

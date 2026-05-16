@@ -47,7 +47,9 @@ export default function LandingPage() {
         >
           Welcome to HyperFlow
         </motion.h1>
-        <p className="mt-4 text-lg">Effortless project management and task tracking for your team.</p>
+        <p className="mt-4 text-lg">
+          Effortless project management and task tracking for your team.
+        </p>
         <Link
           to="/registration"
           className="mt-6 inline-block bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold text-lg shadow-md hover:bg-gray-200 transition"
@@ -77,8 +79,16 @@ export default function LandingPage() {
       <section className="py-16 px-8 bg-white w-full text-center">
         <h2 className="text-3xl font-bold">How It Works</h2>
         <div className="mt-8 grid md:grid-cols-3 gap-8">
-          <StepCard step="1" title="Create a Project" description="Set up a new project and invite your team members." />
-          <StepCard step="2" title="Manage Tasks" description="Break down work into tasks and assign them." />
+          <StepCard
+            step="1"
+            title="Create a Project"
+            description="Set up a new project and invite your team members."
+          />
+          <StepCard
+            step="2"
+            title="Manage Tasks"
+            description="Break down work into tasks and assign them."
+          />
           <StepCard
             step="3"
             title="Track Progress"

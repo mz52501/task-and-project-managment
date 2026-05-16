@@ -8,12 +8,14 @@ Rails.application.routes.draw do
 
   resources :projects do
     resources :members, controller: "project_members", only: [ :create, :destroy ]
-    resources :workflows, controller: "task_workflows", only: [ :index, :create ]
+    resources :stages, controller: "workflow_stages", only: [ :index, :create, :update, :destroy ]
+    resources :tags, only: [ :index, :create, :update, :destroy ]
   end
 
   resources :tasks do
     resources :comments, only: [ :index, :create ]
-    resources :subtasks, only: [ :index, :create ]
+    resources :assignments, controller: "task_assignments", only: [ :index, :create, :destroy ]
+    resources :tags, controller: "task_tags", only: [ :create, :destroy ]
   end
 
   resources :comments, only: [ :destroy ]

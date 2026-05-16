@@ -2,5 +2,8 @@ export * from "./auth";
 export * from "./project";
 export * from "./task";
 export * from "./notification";
+export * from "./activity";
+export * from "./mention";
+export * from "./attachment";
 export * from "./api";
 export * from "./kanban";

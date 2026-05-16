@@ -1,5 +1,5 @@
 class WorkflowStage < ApplicationRecord
-  belongs_to :task_workflow
+  belongs_to :project
   has_many :tasks, dependent: :nullify
 
   validates :name, presence: true

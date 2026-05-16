@@ -2,9 +2,14 @@ class TasksController < ApplicationController
   before_action :set_task, only: [ :show, :update, :destroy ]
 
   def index
-    assigned = Task.where(assigned_to_id: @current_user.id)
-    created = Task.where(created_by_id: @current_user.id)
-    render json: { assigned: assigned, created: created }
+    if params[:parent_task_id]
+      tasks = Task.where(parent_task_id: params[:parent_task_id])
+      render json: tasks
+    else
+      assigned = Task.where(assigned_to_id: @current_user.id)
+      created = Task.where(created_by_id: @current_user.id)
+      render json: { assigned: assigned, created: created }
+    end
   end
 
   def show
@@ -42,6 +47,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.permit(:title, :description, :status, :priority, :due_date, :project_id, :assigned_to_id, :parent_task_id, :workflow_stage_id)
+    params.permit(:title, :description, :status, :priority, :due_date, :project_id, :parent_task_id, :workflow_stage_id)
   end
 end
