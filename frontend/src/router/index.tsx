@@ -9,6 +9,7 @@ import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
 import KanbanBoard from "@/components/KanbanBoard";
 import Task from "@/pages/Task";
+import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
 
 function ProtectedRoute() {
@@ -39,6 +40,7 @@ export default function AppRouter() {
             <Route path="projects" element={<Projects />} />
             <Route path="demo" element={<KanbanBoard />} />
             <Route path="task/:id" element={<Task />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Route>
 
