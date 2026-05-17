@@ -1,138 +1,129 @@
-import { Add, MoreVert } from "@mui/icons-material";
-import { motion } from "framer-motion";
+import React from "react";
+import { Link } from "react-router-dom";
+import { Calendar, User } from "lucide-react";
 
-interface Project {
-  id: number;
-  title: string;
-  dueDate: string;
-  progress: number;
-  members: string[];
-  tags: string[];
-}
+const Projects2 = () => {
+  const projects = [
+    {
+      id: 1,
+      name: "E-commerce Platform",
+      description: "Building a modern e-commerce solution with React and Node.js",
+      status: "In Progress",
+      dueDate: "2024-06-15",
+      team: ["John", "Sarah", "Mike"],
+      tasksCount: 24,
+      completedTasks: 16,
+    },
+    {
+      id: 2,
+      name: "Mobile App Design",
+      description: "UI/UX design for the company's new mobile application",
+      status: "Review",
+      dueDate: "2024-05-30",
+      team: ["Emma", "David"],
+      tasksCount: 12,
+      completedTasks: 10,
+    },
+    {
+      id: 3,
+      name: "Database Migration",
+      description: "Migrating legacy database to new cloud infrastructure",
+      status: "Planning",
+      dueDate: "2024-07-01",
+      team: ["Alex", "Tom", "Lisa", "James"],
+      tasksCount: 8,
+      completedTasks: 2,
+    },
+  ];
 
-const projects: Project[] = [
-  {
-    id: 1,
-    title: "Website Redesign",
-    dueDate: "Apr 20, 2025",
-    progress: 60,
-    members: ["JD", "MK", "AS"],
-    tags: ["Design", "Q2"],
-  },
-  {
-    id: 2,
-    title: "Marketing Campaign",
-    dueDate: "May 10, 2025",
-    progress: 35,
-    members: ["LB", "TR"],
-    tags: ["Marketing", "Urgent"],
-  },
-  {
-    id: 3,
-    title: "SEO Optimization",
-    dueDate: "June 5, 2025",
-    progress: 80,
-    members: ["JG", "SK"],
-    tags: ["SEO", "Growth"],
-  },
-  {
-    id: 4,
-    title: "App Launch",
-    dueDate: "July 1, 2025",
-    progress: 25,
-    members: ["ML", "TC"],
-    tags: ["Mobile", "Launch"],
-  },
-];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "In Progress":
+        return "bg-blue-100 text-blue-800";
+      case "Review":
+        return "bg-yellow-100 text-yellow-800";
+      case "Planning":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
-export default function Projects() {
   return (
-    <div className="overflow-auto">
-      <motion.div
-        className="p-8 max-w-7xl mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <div className="flex justify-between mb-2">
-          <motion.h1
-            className="text-4xl font-bold"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            Projects
-          </motion.h1>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center gap-2">
-            <Add />
-            <span>New Project</span>
+    <div className="bg-gray-50 flex-grow">
+      {/* Page Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
+            <p className="text-gray-600 mt-2">Manage and track your project progress</p>
+          </div>
+          <button className="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-semibold shadow">
+            Create New Project
           </button>
         </div>
-        <div className="mb-6">
-          <p className="text-gray-700">Manage and track your project progress</p>
-        </div>
 
-        <div className="flex gap-4 mb-8">
-          <input
-            type="text"
-            placeholder="Search Projects"
-            className="px-4 py-2 border border-gray-300 rounded-md w-1/3"
-          />
-          <button className="px-4 py-2 border border-gray-300 rounded-md">Active</button>
-          <button className="px-4 py-2 border border-gray-300 rounded-md">Sort by Date</button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <motion.div
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.map((project) => (
+            <div
               key={project.id}
-              className="bg-white shadow-md rounded-lg p-6 flex flex-col"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 + index * 0.1, duration: 0.4 }}
+              className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg transition-shadow"
             >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">{project.title}</h2>
-                <button className="text-gray-500 hover:text-gray-700">
-                  <MoreVert />
-                </button>
+              <div className="flex justify-between items-start mb-2">
+                <h2 className="text-lg font-semibold text-gray-800">{project.name}</h2>
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(
+                    project.status
+                  )}`}
+                >
+                  {project.status}
+                </span>
               </div>
-              <p className="text-sm text-gray-500 mb-4">Due: {project.dueDate}</p>
+              <p className="text-sm text-gray-600 mb-4">{project.description}</p>
 
-              <div className="flex gap-2 mb-4">
-                {project.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-3 py-1 text-sm text-blue-600 border border-blue-600 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="text-sm text-gray-600 flex justify-between mb-1">
+                <span>Progress</span>
+                <span>
+                  {project.completedTasks}/{project.tasksCount} tasks
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 h-2 rounded-full mb-4">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${(project.completedTasks / project.tasksCount) * 100}%`,
+                  }}
+                />
               </div>
 
-              <div className="mb-4">
-                <div className="w-full bg-gray-200 h-2 rounded-full">
-                  <div
-                    className="h-2 bg-blue-600 rounded-full"
-                    style={{ width: `${project.progress}%` }}
-                  />
+              <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  {project.dueDate}
+                </div>
+                <div className="flex items-center gap-1">
+                  <User className="w-4 h-4" />
+                  {project.team.length} members
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                {project.members.map((initials, idx) => (
-                  <div
-                    key={idx}
-                    className="w-8 h-8 bg-gray-300 text-white rounded-full flex items-center justify-center"
-                  >
-                    {initials}
-                  </div>
-                ))}
+              <div className="flex justify-between items-center pt-2 border-t pt-4">
+                <Link
+                  to={`/task/${project.id}`}
+                  className="text-blue-600 hover:underline text-sm font-medium"
+                >
+                  View Tasks
+                </Link>
+                <Link to="/kanban" className="text-blue-600 hover:underline text-sm font-medium">
+                  Open Board
+                </Link>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
-}
+};
+
+export default Projects2;

@@ -25,16 +25,16 @@ const Landing: React.FC = () => {
           </p>
           <div className="flex justify-center space-x-4">
             <Link
-              to="/login"
+              to="/registration"
               className="bg-blue-900 text-white px-6 py-3 rounded-md text-lg hover:bg-blue-800 transition"
             >
               Start Managing Tasks
             </Link>
             <Link
-              to="/registration"
+              to="/login"
               className="border border-blue-900 text-blue-900 px-6 py-3 rounded-md text-lg hover:bg-blue-100 transition"
             >
-              Not a member yet?
+              Sign In
             </Link>
           </div>
         </div>
