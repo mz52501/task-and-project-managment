@@ -63,7 +63,11 @@ const Dashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 space-y-3 text-sm">
-                {[["10:00 AM", "Team Standup"], ["2:00 PM", "Project Review"], ["4:30 PM", "Client Call"]].map(([time, event]) => (
+                {[
+                  ["10:00 AM", "Team Standup"],
+                  ["2:00 PM", "Project Review"],
+                  ["4:30 PM", "Client Call"],
+                ].map(([time, event]) => (
                   <div key={time} className="flex justify-between">
                     <span className="text-gray-600">{time}</span>
                     <span className="font-medium">{event}</span>

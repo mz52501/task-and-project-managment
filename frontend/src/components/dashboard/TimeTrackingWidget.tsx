@@ -35,7 +35,10 @@ const TimeTrackingWidget = () => {
                   <Pause className="w-4 h-4 mr-1" /> Pause
                 </button>
                 <button
-                  onClick={() => { setIsRunning(false); setCurrentTime("00:00:00"); }}
+                  onClick={() => {
+                    setIsRunning(false);
+                    setCurrentTime("00:00:00");
+                  }}
                   className="flex items-center px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
                 >
                   <Square className="w-4 h-4 mr-1" /> Stop
@@ -59,7 +62,11 @@ const TimeTrackingWidget = () => {
         <div className="border-t pt-3">
           <h3 className="text-sm font-semibold text-gray-800 mb-2">Recent Entries</h3>
           <div className="space-y-2 text-sm">
-            {[["UI Components", "1h 30m"], ["Bug Fixes", "45m"], ["Code Review", "30m"]].map(([label, time]) => (
+            {[
+              ["UI Components", "1h 30m"],
+              ["Bug Fixes", "45m"],
+              ["Code Review", "30m"],
+            ].map(([label, time]) => (
               <div key={label} className="flex justify-between">
                 <span className="text-gray-600">{label}</span>
                 <span className="font-medium">{time}</span>

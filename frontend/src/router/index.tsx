@@ -7,7 +7,7 @@ import Login from "@/pages/Login";
 import Registration from "@/pages/Registration";
 import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
-import KanbanBoard from "@/components/KanbanBoard";
+import ProjectDetail from "@/pages/ProjectDetail";
 import Task from "@/pages/Task";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
@@ -38,7 +38,7 @@ export default function AppRouter() {
           <Route path="/" element={<MyNavbar />}>
             <Route index element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
-            <Route path="demo" element={<KanbanBoard />} />
+            <Route path="projects/:id" element={<ProjectDetail />} />
             <Route path="task/:id" element={<Task />} />
             <Route path="profile" element={<Profile />} />
           </Route>

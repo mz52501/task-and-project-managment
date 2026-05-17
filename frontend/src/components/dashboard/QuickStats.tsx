@@ -4,10 +4,34 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const QuickStats = () => {
   const stats = [
-    { title: "Active Projects", value: "12", change: "+2 this week", icon: TrendingUp, color: "text-blue-600" },
-    { title: "Tasks Due Today", value: "5", change: "3 completed", icon: Clock, color: "text-orange-600" },
-    { title: "Completed Tasks", value: "28", change: "+4 today", icon: CheckCircle, color: "text-green-600" },
-    { title: "Team Members", value: "8", change: "2 online now", icon: Users, color: "text-purple-600" },
+    {
+      title: "Active Projects",
+      value: "12",
+      change: "+2 this week",
+      icon: TrendingUp,
+      color: "text-blue-600",
+    },
+    {
+      title: "Tasks Due Today",
+      value: "5",
+      change: "3 completed",
+      icon: Clock,
+      color: "text-orange-600",
+    },
+    {
+      title: "Completed Tasks",
+      value: "28",
+      change: "+4 today",
+      icon: CheckCircle,
+      color: "text-green-600",
+    },
+    {
+      title: "Team Members",
+      value: "8",
+      change: "2 online now",
+      icon: Users,
+      color: "text-purple-600",
+    },
   ];
 
   return (

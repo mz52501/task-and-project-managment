@@ -4,17 +4,42 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const TodaysFocus = () => {
   const tasks = [
-    { id: 1, title: "Complete user authentication flow", project: "TaskFlow App", priority: "high", dueTime: "2:00 PM", status: "in-progress" },
-    { id: 2, title: "Review design mockups", project: "Website Redesign", priority: "medium", dueTime: "4:30 PM", status: "pending" },
-    { id: 3, title: "Update project documentation", project: "API Development", priority: "low", dueTime: "End of day", status: "pending" },
+    {
+      id: 1,
+      title: "Complete user authentication flow",
+      project: "TaskFlow App",
+      priority: "high",
+      dueTime: "2:00 PM",
+      status: "in-progress",
+    },
+    {
+      id: 2,
+      title: "Review design mockups",
+      project: "Website Redesign",
+      priority: "medium",
+      dueTime: "4:30 PM",
+      status: "pending",
+    },
+    {
+      id: 3,
+      title: "Update project documentation",
+      project: "API Development",
+      priority: "low",
+      dueTime: "End of day",
+      status: "pending",
+    },
   ];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "high": return "bg-red-100 text-red-700";
-      case "medium": return "bg-yellow-100 text-yellow-700";
-      case "low": return "bg-green-100 text-green-700";
-      default: return "bg-gray-100 text-gray-700";
+      case "high":
+        return "bg-red-100 text-red-700";
+      case "medium":
+        return "bg-yellow-100 text-yellow-700";
+      case "low":
+        return "bg-green-100 text-green-700";
+      default:
+        return "bg-gray-100 text-gray-700";
     }
   };
 
@@ -28,12 +53,17 @@ const TodaysFocus = () => {
       </CardHeader>
       <CardContent className="pt-4 space-y-3">
         {tasks.map((task) => (
-          <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition">
+          <div
+            key={task.id}
+            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition"
+          >
             <div className="flex-1">
               <h4 className="font-medium text-gray-900">{task.title}</h4>
               <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                 <span>{task.project}</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}
+                >
                   {task.priority}
                 </span>
                 <span className="flex items-center">

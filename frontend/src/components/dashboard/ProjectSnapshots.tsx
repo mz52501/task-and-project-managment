@@ -5,17 +5,48 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const ProjectSnapshots = () => {
   const projects = [
-    { id: 1, name: "TaskFlow Mobile App", progress: 75, tasksCompleted: 12, totalTasks: 16, teamMembers: 4, dueDate: "Dec 15, 2024", status: "on-track" },
-    { id: 2, name: "Website Redesign", progress: 45, tasksCompleted: 9, totalTasks: 20, teamMembers: 3, dueDate: "Jan 20, 2025", status: "on-track" },
-    { id: 3, name: "API Development", progress: 90, tasksCompleted: 18, totalTasks: 20, teamMembers: 2, dueDate: "Dec 10, 2024", status: "ahead" },
+    {
+      id: 1,
+      name: "TaskFlow Mobile App",
+      progress: 75,
+      tasksCompleted: 12,
+      totalTasks: 16,
+      teamMembers: 4,
+      dueDate: "Dec 15, 2024",
+      status: "on-track",
+    },
+    {
+      id: 2,
+      name: "Website Redesign",
+      progress: 45,
+      tasksCompleted: 9,
+      totalTasks: 20,
+      teamMembers: 3,
+      dueDate: "Jan 20, 2025",
+      status: "on-track",
+    },
+    {
+      id: 3,
+      name: "API Development",
+      progress: 90,
+      tasksCompleted: 18,
+      totalTasks: 20,
+      teamMembers: 2,
+      dueDate: "Dec 10, 2024",
+      status: "ahead",
+    },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ahead": return "text-green-600 bg-green-100";
-      case "on-track": return "text-blue-600 bg-blue-100";
-      case "behind": return "text-red-600 bg-red-100";
-      default: return "text-gray-600 bg-gray-100";
+      case "ahead":
+        return "text-green-600 bg-green-100";
+      case "on-track":
+        return "text-blue-600 bg-blue-100";
+      case "behind":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-gray-600 bg-gray-100";
     }
   };
 
@@ -27,7 +58,10 @@ const ProjectSnapshots = () => {
             <Folder className="w-5 h-5 text-blue-600 mr-2" />
             Active Projects
           </CardTitle>
-          <Link to="/projects" className="text-sm border rounded px-3 py-1 hover:bg-gray-50 text-gray-700">
+          <Link
+            to="/projects"
+            className="text-sm border rounded px-3 py-1 hover:bg-gray-50 text-gray-700"
+          >
             View All
           </Link>
         </div>
@@ -39,17 +73,27 @@ const ProjectSnapshots = () => {
               <div>
                 <h3 className="font-semibold text-gray-900">{project.name}</h3>
                 <div className="flex gap-4 text-sm text-gray-500 mt-1">
-                  <span className="flex items-center"><Users className="w-4 h-4 mr-1" />{project.teamMembers} members</span>
-                  <span className="flex items-center"><Calendar className="w-4 h-4 mr-1" />Due {project.dueDate}</span>
+                  <span className="flex items-center">
+                    <Users className="w-4 h-4 mr-1" />
+                    {project.teamMembers} members
+                  </span>
+                  <span className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    Due {project.dueDate}
+                  </span>
                 </div>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(project.status)}`}>
+              <span
+                className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(project.status)}`}
+              >
                 {project.status.replace("-", " ")}
               </span>
             </div>
             <div className="space-y-1">
               <div className="flex justify-between text-sm text-gray-600">
-                <span>{project.tasksCompleted} of {project.totalTasks} tasks completed</span>
+                <span>
+                  {project.tasksCompleted} of {project.totalTasks} tasks completed
+                </span>
                 <span className="font-medium">{project.progress}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded h-2 overflow-hidden">

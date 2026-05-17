@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Calendar, Check, Clock, Plus, User } from "lucide-react";
 
 const Task = () => {
-  const { id: _id } = useParams();
+  useParams();
   const [newComment, setNewComment] = useState("");
   const [newTimeEntry, setNewTimeEntry] = useState({ hours: "", description: "" });
 

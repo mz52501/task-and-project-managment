@@ -16,10 +16,10 @@ import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
 
 interface Props {
-  projectName?: string;
   projectId?: string;
   initialColumns?: Column[];
   initialTasks?: Task[];
+  height?: string;
 }
 
 const DEFAULT_COLUMNS: Column[] = [
@@ -125,10 +125,10 @@ const DEFAULT_TASKS: Task[] = [
 ];
 
 function KanbanBoard({
-  projectName = "E-commerce Platform",
   projectId: _projectId = "mock-project-id",
   initialColumns = DEFAULT_COLUMNS,
   initialTasks = DEFAULT_TASKS,
+  height = "calc(100vh - 64px)",
 }: Props) {
   const [columns] = React.useState<Column[]>(initialColumns);
   const [activeTask, setActiveTask] = React.useState<Task | null>(null);
@@ -205,43 +205,34 @@ function KanbanBoard({
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)]">
-      <div className="flex-1 overflow-x-auto min-h-0 flex flex-col items-center">
-        <div className="w-full max-w-6xl px-6 pt-8 pb-6 flex-none">
-          <h1 className="text-3xl font-bold text-gray-900">{projectName} Board</h1>
-          <p className="text-gray-500 mt-1">Track progress and manage tasks visually</p>
-        </div>
+    <div className="flex overflow-x-auto min-h-0 gap-4" style={{ height }}>
+      <DndContext
+        sensors={sensors}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+        onDragOver={onDragOver}
+      >
+        <SortableContext items={columnsIds}>
+          <div className="flex gap-4 h-full">
+            {columns.map((column) => (
+              <ColumnContainer
+                key={column.id}
+                column={column}
+                tasks={tasks.filter((t) => t.columnId === column.id)}
+                deleteTask={deleteTask}
+                onAddTask={onAddTask}
+              />
+            ))}
+          </div>
+        </SortableContext>
 
-        <div className="flex-1 min-h-0 w-full max-w-6xl px-6 pb-6">
-          <DndContext
-            sensors={sensors}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            onDragOver={onDragOver}
-          >
-            <SortableContext items={columnsIds}>
-              <div className="flex gap-4 h-full">
-                {columns.map((column) => (
-                  <ColumnContainer
-                    key={column.id}
-                    column={column}
-                    tasks={tasks.filter((t) => t.columnId === column.id)}
-                    deleteTask={deleteTask}
-                    onAddTask={onAddTask}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-
-            {createPortal(
-              <DragOverlay>
-                {activeTask && <TaskCard task={activeTask} deleteTask={deleteTask} />}
-              </DragOverlay>,
-              document.body
-            )}
-          </DndContext>
-        </div>
-      </div>
+        {createPortal(
+          <DragOverlay>
+            {activeTask && <TaskCard task={activeTask} deleteTask={deleteTask} />}
+          </DragOverlay>,
+          document.body
+        )}
+      </DndContext>
     </div>
   );
 }

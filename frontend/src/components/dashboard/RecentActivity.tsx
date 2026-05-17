@@ -4,11 +4,51 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const RecentActivity = () => {
   const activities = [
-    { id: 1, user: "You", action: "completed", target: "User authentication setup", time: "2 minutes ago", icon: CheckCircle, color: "text-green-600" },
-    { id: 2, user: "Sarah Chen", action: "commented on", target: "Design review task", time: "15 minutes ago", icon: MessageSquare, color: "text-blue-600" },
-    { id: 3, user: "Mike Johnson", action: "logged 2.5 hours on", target: "API endpoint development", time: "1 hour ago", icon: Clock, color: "text-purple-600" },
-    { id: 4, user: "Emma Wilson", action: "was assigned to", target: "Mobile app testing", time: "2 hours ago", icon: User, color: "text-orange-600" },
-    { id: 5, user: "David Park", action: "completed", target: "Database optimization", time: "3 hours ago", icon: CheckCircle, color: "text-green-600" },
+    {
+      id: 1,
+      user: "You",
+      action: "completed",
+      target: "User authentication setup",
+      time: "2 minutes ago",
+      icon: CheckCircle,
+      color: "text-green-600",
+    },
+    {
+      id: 2,
+      user: "Sarah Chen",
+      action: "commented on",
+      target: "Design review task",
+      time: "15 minutes ago",
+      icon: MessageSquare,
+      color: "text-blue-600",
+    },
+    {
+      id: 3,
+      user: "Mike Johnson",
+      action: "logged 2.5 hours on",
+      target: "API endpoint development",
+      time: "1 hour ago",
+      icon: Clock,
+      color: "text-purple-600",
+    },
+    {
+      id: 4,
+      user: "Emma Wilson",
+      action: "was assigned to",
+      target: "Mobile app testing",
+      time: "2 hours ago",
+      icon: User,
+      color: "text-orange-600",
+    },
+    {
+      id: 5,
+      user: "David Park",
+      action: "completed",
+      target: "Database optimization",
+      time: "3 hours ago",
+      icon: CheckCircle,
+      color: "text-green-600",
+    },
   ];
 
   return (
