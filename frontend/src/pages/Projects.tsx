@@ -58,7 +58,7 @@ const Projects2 = () => {
             <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
             <p className="text-gray-600 mt-2">Manage and track your project progress</p>
           </div>
-          <button className="bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-semibold shadow">
+          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-semibold shadow cursor-pointer">
             Create New Project
           </button>
         </div>

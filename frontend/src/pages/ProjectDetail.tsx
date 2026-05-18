@@ -143,7 +143,7 @@ const ProjectDetail = () => {
                 <Button variant="outline" size="sm">
                   <Pencil className="w-4 h-4" /> Edit Project
                 </Button>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button size="sm">
                   <UserPlus className="w-4 h-4" /> Add Member
                 </Button>
               </div>

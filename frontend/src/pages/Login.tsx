@@ -1,26 +1,36 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { login } from "@/api/auth";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    remember: false,
-  });
+  const [formData, setFormData] = useState({ email: "", password: "", remember: false });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { saveAuth } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, type, value, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login data:", formData);
+    setError("");
+    setLoading(true);
+    try {
+      const data = await login({ email: formData.email, password: formData.password });
+      saveAuth(data.token, data.user);
+      navigate("/");
+    } catch {
+      setError("Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,13 +107,12 @@ export default function Login() {
               </Link>
             </div>
 
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-blue-900 hover:bg-blue-800 text-white font-semibold py-2 rounded-md transition"
-            >
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
+            <Button type="submit" disabled={loading} className="w-full cursor-pointer">
               <LogIn size={18} />
-              Sign In
-            </button>
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">

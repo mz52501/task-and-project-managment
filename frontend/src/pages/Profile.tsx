@@ -88,7 +88,7 @@ const Profile = () => {
               </div>
             </div>
             <div className="flex justify-end pt-2">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">Save Changes</Button>
+              <Button>Save Changes</Button>
             </div>
           </CardContent>
         </Card>

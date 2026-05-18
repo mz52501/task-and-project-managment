@@ -37,7 +37,7 @@ const Dashboard = () => {
               <CardContent className="pt-4 space-y-2">
                 <Link
                   to="/new-task"
-                  className="flex items-center w-full px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 text-sm"
+                  className="flex items-center w-full px-4 py-2 rounded bg-primary text-primary-foreground hover:bg-primary/90 text-sm"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Create New Task
                 </Link>

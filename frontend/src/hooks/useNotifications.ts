@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createConsumer, Subscription } from "@rails/actioncable";
+import client from "@/api/client";
 
 export interface AppNotification {
   id: string;
@@ -26,12 +27,9 @@ export function useNotifications() {
       },
     });
 
-    fetch("http://localhost:3001/notifications", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: AppNotification[]) => {
-        const list = Array.isArray(data) ? data : [];
+    client.get<AppNotification[]>("/notifications")
+      .then((r) => {
+        const list = Array.isArray(r.data) ? r.data : [];
         setNotifications(list);
         setUnreadCount(list.filter((n) => !n.read).length);
       })
@@ -44,19 +42,8 @@ export function useNotifications() {
   }, []);
 
   const markAllRead = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     const unread = notifications.filter((n) => !n.read);
-    await Promise.all(
-      unread.map((n) =>
-        fetch(`http://localhost:3001/notifications/${n.id}/mark_read`, {
-          method: "PATCH",
-          headers: { Authorization: `Bearer ${token}` },
-        })
-      )
-    );
-
+    await Promise.all(unread.map((n) => client.patch(`/notifications/${n.id}/mark_read`)));
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnreadCount(0);
   };

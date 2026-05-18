@@ -1,5 +1,11 @@
 export type TaskPriority = "low" | "medium" | "high";
 
+export interface Subtask {
+  id: number;
+  title: string;
+  status: string;
+}
+
 export interface Task {
   id: string;
   title: string;

@@ -78,7 +78,7 @@ const TodaysFocus = () => {
                   <Play className="w-3 h-3 mr-1" /> Continue
                 </button>
               ) : (
-                <button className="flex items-center px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                <button className="flex items-center px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90">
                   <Play className="w-3 h-3 mr-1" /> Start
                 </button>
               )}

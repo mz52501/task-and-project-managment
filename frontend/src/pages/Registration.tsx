@@ -1,25 +1,46 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { register } from "@/api/auth";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const Registration = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "", confirmPassword: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { saveAuth } = useAuth();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration attempt:", formData);
+    setError("");
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await register({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: "developer",
+      });
+      saveAuth(data.token, data.user);
+      navigate("/");
+    } catch {
+      setError("Registration failed. Email may already be in use.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -154,13 +175,12 @@ const Registration = () => {
               </label>
             </div>
 
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition"
-            >
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+
+            <Button type="submit" disabled={loading} className="w-full cursor-pointer">
               <UserPlus size={18} />
-              Create Account
-            </button>
+              {loading ? "Creating account..." : "Create Account"}
+            </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-gray-600">
