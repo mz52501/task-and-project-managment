@@ -1,15 +1,21 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Clock, Plus, Timer, Calendar, TrendingUp } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
+import React, { useEffect, useState } from "react";
 import QuickStats from "../components/dashboard/QuickStats";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import TodaysFocus from "../components/dashboard/TodaysFocus";
 import ProjectSnapshots from "../components/dashboard/ProjectSnapshots";
 import TimeTrackingWidget from "../components/dashboard/TimeTrackingWidget";
+import WeeklyTimeChart from "../components/dashboard/WeeklyTimeChart";
+import { getDashboard, DashboardData } from "@/api/dashboard";
 
 const Dashboard = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    getDashboard()
+      .then(setData)
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="flex-grow bg-gray-50 overflow-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -18,63 +24,18 @@ const Dashboard = () => {
           <p className="text-gray-600">Here's what's happening with your projects today.</p>
         </div>
 
-        <QuickStats />
+        <QuickStats data={data?.stats ?? null} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           <div className="lg:col-span-2 space-y-8">
-            <TodaysFocus />
-            <ProjectSnapshots />
+            <TodaysFocus tasks={data?.today_focus ?? []} />
+            <ProjectSnapshots snapshots={data?.project_snapshots ?? []} />
             <RecentActivity />
           </div>
 
           <div className="space-y-6">
             <TimeTrackingWidget />
-
-            <Card>
-              <CardHeader className="border-b pb-4">
-                <CardTitle className="text-base">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-2">
-                <Link
-                  to="/new-task"
-                  className="flex items-center w-full px-4 py-2 rounded bg-primary text-primary-foreground hover:bg-primary/90 text-sm"
-                >
-                  <Plus className="w-4 h-4 mr-2" /> Create New Task
-                </Link>
-                <button className="flex items-center w-full px-4 py-2 rounded border hover:bg-gray-50 text-sm">
-                  <Timer className="w-4 h-4 mr-2" /> Start Timer
-                </button>
-                <button className="flex items-center w-full px-4 py-2 rounded border hover:bg-gray-50 text-sm">
-                  <Clock className="w-4 h-4 mr-2" /> Log Time
-                </button>
-                <Link
-                  to="/projects"
-                  className="flex items-center w-full px-4 py-2 rounded border hover:bg-gray-50 text-sm"
-                >
-                  <TrendingUp className="w-4 h-4 mr-2" /> View All Projects
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="border-b pb-4">
-                <CardTitle className="flex items-center text-base">
-                  <Calendar className="w-5 h-5 mr-2 text-blue-600" /> Today's Schedule
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4 space-y-3 text-sm">
-                {[
-                  ["10:00 AM", "Team Standup"],
-                  ["2:00 PM", "Project Review"],
-                  ["4:30 PM", "Client Call"],
-                ].map(([time, event]) => (
-                  <div key={time} className="flex justify-between">
-                    <span className="text-gray-600">{time}</span>
-                    <span className="font-medium">{event}</span>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+            <WeeklyTimeChart days={data?.weekly_time ?? []} />
           </div>
         </div>
       </div>

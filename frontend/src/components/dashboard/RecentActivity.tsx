@@ -1,55 +1,44 @@
-import React from "react";
-import { CheckCircle, MessageSquare, Clock, User } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { CheckCircle, MessageSquare, Clock, User, Folder } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { getActivityLogs, ActivityLogEntry } from "@/api/dashboard";
+
+const iconMap: Record<string, React.ElementType> = {
+  created: CheckCircle,
+  updated: CheckCircle,
+  commented: MessageSquare,
+  time_logged: Clock,
+  assigned: User,
+  completed: CheckCircle,
+};
+
+const colorMap: Record<string, string> = {
+  created: "text-blue-600",
+  updated: "text-gray-500",
+  commented: "text-blue-600",
+  time_logged: "text-purple-600",
+  assigned: "text-orange-600",
+  completed: "text-green-600",
+};
+
+function relativeTime(dateStr: string): string {
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
 
 const RecentActivity = () => {
-  const activities = [
-    {
-      id: 1,
-      user: "You",
-      action: "completed",
-      target: "User authentication setup",
-      time: "2 minutes ago",
-      icon: CheckCircle,
-      color: "text-green-600",
-    },
-    {
-      id: 2,
-      user: "Sarah Chen",
-      action: "commented on",
-      target: "Design review task",
-      time: "15 minutes ago",
-      icon: MessageSquare,
-      color: "text-blue-600",
-    },
-    {
-      id: 3,
-      user: "Mike Johnson",
-      action: "logged 2.5 hours on",
-      target: "API endpoint development",
-      time: "1 hour ago",
-      icon: Clock,
-      color: "text-purple-600",
-    },
-    {
-      id: 4,
-      user: "Emma Wilson",
-      action: "was assigned to",
-      target: "Mobile app testing",
-      time: "2 hours ago",
-      icon: User,
-      color: "text-orange-600",
-    },
-    {
-      id: 5,
-      user: "David Park",
-      action: "completed",
-      target: "Database optimization",
-      time: "3 hours ago",
-      icon: CheckCircle,
-      color: "text-green-600",
-    },
-  ];
+  const [activities, setActivities] = useState<ActivityLogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getActivityLogs()
+      .then(setActivities)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <Card>
@@ -60,20 +49,33 @@ const RecentActivity = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
-        <div className="h-64 overflow-y-auto space-y-4 pr-2">
-          {activities.map((activity) => (
-            <div key={activity.id} className="flex items-start gap-3">
-              <activity.icon className={`w-5 h-5 mt-0.5 ${activity.color}`} />
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">{activity.user}</span> {activity.action}{" "}
-                  <span className="font-medium">{activity.target}</span>
-                </p>
-                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+            ))}
+          </div>
+        ) : activities.length === 0 ? (
+          <p className="text-sm text-gray-500 py-4 text-center">No recent activity</p>
+        ) : (
+          <div className="h-64 overflow-y-auto space-y-4 pr-2">
+            {activities.map((activity) => {
+              const Icon = iconMap[activity.activity_type] ?? Folder;
+              const color = colorMap[activity.activity_type] ?? "text-gray-500";
+              return (
+                <div key={activity.id} className="flex items-start gap-3">
+                  <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${color}`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-900">{activity.summary}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {relativeTime(activity.occurred_at)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

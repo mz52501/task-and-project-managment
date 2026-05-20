@@ -27,7 +27,8 @@ export function useNotifications() {
       },
     });
 
-    client.get<AppNotification[]>("/notifications")
+    client
+      .get<AppNotification[]>("/notifications")
       .then((r) => {
         const list = Array.isArray(r.data) ? r.data : [];
         setNotifications(list);

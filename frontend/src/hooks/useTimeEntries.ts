@@ -9,8 +9,18 @@ export interface LocalTimeEntry {
 
 const initialEntries: LocalTimeEntry[] = [
   { id: 1, date: "2024-05-28", hours: "2h 30m", description: "Initial dashboard setup and layout" },
-  { id: 2, date: "2024-05-27", hours: "3h 15m", description: "Implemented chart components using Recharts" },
-  { id: 3, date: "2024-05-26", hours: "3h 0m", description: "Designed dashboard wireframes and component structure" },
+  {
+    id: 2,
+    date: "2024-05-27",
+    hours: "3h 15m",
+    description: "Implemented chart components using Recharts",
+  },
+  {
+    id: 3,
+    date: "2024-05-26",
+    hours: "3h 0m",
+    description: "Designed dashboard wireframes and component structure",
+  },
 ];
 
 export function useTimeEntries() {
@@ -21,12 +31,15 @@ export function useTimeEntries() {
 
   function logTime() {
     if (!newTimeEntry.hours.trim()) return;
-    setTimeEntries((prev) => [...prev, {
-      id: Date.now(),
-      date: new Date().toISOString().split("T")[0],
-      hours: newTimeEntry.hours,
-      description: newTimeEntry.description,
-    }]);
+    setTimeEntries((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        date: new Date().toISOString().split("T")[0],
+        hours: newTimeEntry.hours,
+        description: newTimeEntry.description,
+      },
+    ]);
     setNewTimeEntry({ hours: "", description: "" });
   }
 
@@ -40,7 +53,7 @@ export function useTimeEntries() {
   }
 
   function saveEditEntry(id: number) {
-    setTimeEntries((prev) => prev.map((e) => e.id === id ? { ...e, ...editEntryData } : e));
+    setTimeEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...editEntryData } : e)));
     setEditingEntry(null);
   }
 

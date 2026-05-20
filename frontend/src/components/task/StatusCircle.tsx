@@ -3,7 +3,8 @@ import { STATUS_OPTIONS, statusStroke } from "@/constants/task";
 export function StatusCircle({ status }: { status: string }) {
   const index = STATUS_OPTIONS.indexOf(status);
   const fraction = index / (STATUS_OPTIONS.length - 1);
-  const cx = 10, cy = 10;
+  const cx = 10,
+    cy = 10;
   const outerR = 9;
   const innerR = 6.5;
   const color = statusStroke[status] ?? "#9ca3af";

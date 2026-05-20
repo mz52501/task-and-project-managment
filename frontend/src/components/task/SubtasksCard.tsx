@@ -14,7 +14,9 @@ export function SubtasksCard() {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle>Subtasks ({completedCount}/{subtasks.length})</CardTitle>
+        <CardTitle>
+          Subtasks ({completedCount}/{subtasks.length})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">

@@ -40,10 +40,16 @@ export function CommentsCard() {
                     <span className="text-xs text-gray-400">{c.date}</span>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => startEditComment(c)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <button
+                      onClick={() => startEditComment(c)}
+                      className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                    >
                       <Pencil className="w-4 h-4" />
                     </button>
-                    <button onClick={() => deleteComment(c.id)} className="text-gray-400 hover:text-red-500 cursor-pointer">
+                    <button
+                      onClick={() => deleteComment(c.id)}
+                      className="text-gray-400 hover:text-red-500 cursor-pointer"
+                    >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -56,8 +62,21 @@ export function CommentsCard() {
                       className="text-sm"
                     />
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => saveEditComment(c.id)} className="cursor-pointer">Save</Button>
-                      <Button size="sm" variant="outline" onClick={() => setEditingComment(null)} className="cursor-pointer">Cancel</Button>
+                      <Button
+                        size="sm"
+                        onClick={() => saveEditComment(c.id)}
+                        className="cursor-pointer"
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingComment(null)}
+                        className="cursor-pointer"
+                      >
+                        Cancel
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -80,7 +99,9 @@ export function CommentsCard() {
                 onChange={(e) => setNewComment(e.target.value)}
                 className="mb-2"
               />
-              <Button size="sm" onClick={postComment} className="cursor-pointer">Post Comment</Button>
+              <Button size="sm" onClick={postComment} className="cursor-pointer">
+                Post Comment
+              </Button>
             </div>
           </div>
         </div>

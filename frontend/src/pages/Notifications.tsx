@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Check,
@@ -79,19 +78,29 @@ const Notifications = () => {
         </div>
 
         {/* Filters */}
-        <Tabs value={activeFilter} onValueChange={(v) => setActiveFilter(v as "all" | "unread" | "read")} className="mb-6">
+        <Tabs
+          value={activeFilter}
+          onValueChange={(v) => setActiveFilter(v as "all" | "unread" | "read")}
+          className="mb-6"
+        >
           <TabsList className="h-11 px-1.5 gap-1">
             <TabsTrigger value="all" className="flex items-center gap-2 px-4 text-sm">
               All
-              <span className="text-xs bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 leading-none">{visible.length}</span>
+              <span className="text-xs bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 leading-none">
+                {visible.length}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="unread" className="flex items-center gap-2 px-4 text-sm">
               Unread
               {unreadCount > 0 && (
-                <span className="text-xs bg-blue-600 text-white rounded-full px-2 py-0.5 leading-none">{unreadCount}</span>
+                <span className="text-xs bg-blue-600 text-white rounded-full px-2 py-0.5 leading-none">
+                  {unreadCount}
+                </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="read" className="px-4 text-sm">Read</TabsTrigger>
+            <TabsTrigger value="read" className="px-4 text-sm">
+              Read
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -125,7 +134,9 @@ const Notifications = () => {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
+                      <div
+                        className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}
+                      >
                         <Icon className="w-5 h-5" />
                       </div>
 
@@ -133,9 +144,7 @@ const Notifications = () => {
                         <div className="flex items-start justify-between gap-2">
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-semibold text-gray-900">
-                                {n.message}
-                              </h3>
+                              <h3 className="text-sm font-semibold text-gray-900">{n.message}</h3>
                               {!n.read && (
                                 <span className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0" />
                               )}

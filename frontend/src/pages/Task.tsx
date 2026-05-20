@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -18,7 +17,8 @@ import { TimeTrackingCard } from "@/components/task/TimeTrackingCard";
 
 const task = {
   title: "Implement user dashboard",
-  description: "Build a comprehensive user dashboard with charts, statistics, and user activity feeds. This should include responsive design and dark mode support.",
+  description:
+    "Build a comprehensive user dashboard with charts, statistics, and user activity feeds. This should include responsive design and dark mode support.",
   assignee: "Mike Johnson",
   project: "E-commerce Platform",
   projectId: "1",
@@ -45,10 +45,8 @@ const Task = () => {
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
           {/* Main column */}
           <div className="lg:col-span-2 space-y-6">
-
             {/* Task header */}
             <Card>
               <CardHeader className="pb-3">
@@ -80,30 +78,46 @@ const Task = () => {
               <CardContent className="pt-0">
                 <div className="flex items-center gap-6 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</span>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Status
+                    </span>
                     <Select value={status} onValueChange={setStatus}>
-                      <SelectTrigger className={`h-8 w-36 text-sm font-medium border-0 cursor-pointer ${statusColors[status]}`}>
+                      <SelectTrigger
+                        className={`h-8 w-36 text-sm font-medium border-0 cursor-pointer ${statusColors[status]}`}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {STATUS_OPTIONS.map((s) => (
                           <SelectItem key={s} value={s} className="cursor-pointer">
-                            <span className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${statusColors[s]}`}>{s}</span>
+                            <span
+                              className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${statusColors[s]}`}
+                            >
+                              {s}
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Priority</span>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Priority
+                    </span>
                     <Select value={priority} onValueChange={setPriority}>
-                      <SelectTrigger className={`h-8 w-28 text-sm font-medium border-0 cursor-pointer ${priorityColors[priority]}`}>
+                      <SelectTrigger
+                        className={`h-8 w-28 text-sm font-medium border-0 cursor-pointer ${priorityColors[priority]}`}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {PRIORITY_OPTIONS.map((p) => (
                           <SelectItem key={p} value={p} className="cursor-pointer">
-                            <span className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${priorityColors[p]}`}>{p}</span>
+                            <span
+                              className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${priorityColors[p]}`}
+                            >
+                              {p}
+                            </span>
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -130,7 +144,6 @@ const Task = () => {
             />
             <TimeTrackingCard />
           </div>
-
         </div>
       </div>
     </div>

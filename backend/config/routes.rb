@@ -28,4 +28,12 @@ Rails.application.routes.draw do
     end
   end
   resources :events, only: [ :index, :create, :destroy ]
+
+  get "dashboard", to: "dashboard#index"
+
+  resources :activity_logs, only: [ :index ]
+
+  get  "timer/status", to: "timer#status"
+  post "timer/start",  to: "timer#start"
+  post "timer/stop",   to: "timer#stop"
 end

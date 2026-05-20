@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { RxDropdownMenu } from "react-icons/rx";
 import { motion } from "framer-motion";
@@ -35,8 +35,12 @@ function NotificationRow({ n }: { n: AppNotification }) {
   const Icon = iconMap[type];
   const colorClass = colorMap[type];
   return (
-    <div className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50/40" : ""}`}>
-      <div className={`w-8 h-8 rounded-full flex-none flex items-center justify-center ${colorClass}`}>
+    <div
+      className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50/40" : ""}`}
+    >
+      <div
+        className={`w-8 h-8 rounded-full flex-none flex items-center justify-center ${colorClass}`}
+      >
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
@@ -113,7 +117,10 @@ export function MyNavbar() {
                   notifications.slice(0, 5).map((n) => <NotificationRow key={n.id} n={n} />)
                 )}
               </div>
-              <Link to="/notifications" className="border-t flex items-center justify-center py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors cursor-pointer">
+              <Link
+                to="/notifications"
+                className="border-t flex items-center justify-center py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors cursor-pointer"
+              >
                 View all notifications
               </Link>
             </PopoverContent>

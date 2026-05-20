@@ -36,7 +36,9 @@ export function TimeTrackingCard() {
               onChange={(e) => setNewTimeEntry({ ...newTimeEntry, hours: e.target.value })}
             />
           </div>
-          <Button onClick={logTime} className="cursor-pointer">Log Time</Button>
+          <Button onClick={logTime} className="cursor-pointer">
+            Log Time
+          </Button>
         </div>
         <div>
           <Label className="text-xs text-gray-500">Description</Label>
@@ -63,13 +65,28 @@ export function TimeTrackingCard() {
                   />
                   <Input
                     value={editEntryData.description}
-                    onChange={(e) => setEditEntryData({ ...editEntryData, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditEntryData({ ...editEntryData, description: e.target.value })
+                    }
                     className="h-7 text-xs"
                     placeholder="Description"
                   />
                   <div className="flex gap-1">
-                    <Button size="sm" className="h-6 text-xs px-2 cursor-pointer" onClick={() => saveEditEntry(entry.id)}>Save</Button>
-                    <Button size="sm" variant="outline" className="h-6 text-xs px-2 cursor-pointer" onClick={() => setEditingEntry(null)}>Cancel</Button>
+                    <Button
+                      size="sm"
+                      className="h-6 text-xs px-2 cursor-pointer"
+                      onClick={() => saveEditEntry(entry.id)}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 text-xs px-2 cursor-pointer"
+                      onClick={() => setEditingEntry(null)}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -79,10 +96,16 @@ export function TimeTrackingCard() {
                     <div className="flex items-center gap-2">
                       <span className="text-gray-500">{entry.date}</span>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => startEditEntry(entry)} className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                        <button
+                          onClick={() => startEditEntry(entry)}
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                        >
                           <Pencil className="w-3 h-3" />
                         </button>
-                        <button onClick={() => deleteTimeEntry(entry.id)} className="text-gray-400 hover:text-red-500 cursor-pointer">
+                        <button
+                          onClick={() => deleteTimeEntry(entry.id)}
+                          className="text-gray-400 hover:text-red-500 cursor-pointer"
+                        >
                           <Trash2 className="w-3 h-3" />
                         </button>
                       </div>

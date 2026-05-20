@@ -15,11 +15,7 @@ const NotificationsContext = createContext<NotificationsContextValue>({
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const value = useNotifications();
-  return (
-    <NotificationsContext.Provider value={value}>
-      {children}
-    </NotificationsContext.Provider>
-  );
+  return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
 }
 
 export const useNotificationsContext = () => useContext(NotificationsContext);

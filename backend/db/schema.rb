@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_10_203604) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_19_061548) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
+
+  create_table "active_timers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "started_at", null: false
+    t.uuid "task_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["task_id"], name: "index_active_timers_on_task_id"
+    t.index ["user_id"], name: "index_active_timers_on_user_id", unique: true
+  end
 
   create_table "activity_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "activity_type", default: "created", null: false
@@ -206,6 +216,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_203604) do
     t.index ["project_id"], name: "index_workflow_stages_on_project_id"
   end
 
+  add_foreign_key "active_timers", "tasks"
+  add_foreign_key "active_timers", "users"
   add_foreign_key "activity_logs", "users", column: "actor_id"
   add_foreign_key "attachments", "users", column: "uploaded_by_id"
   add_foreign_key "comments", "tasks"

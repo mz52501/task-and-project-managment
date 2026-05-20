@@ -6,7 +6,8 @@ class TasksController < ApplicationController
       tasks = Task.where(parent_task_id: params[:parent_task_id])
       render json: tasks
     else
-      assigned = Task.where(assigned_to_id: @current_user.id)
+      assigned_task_ids = TaskAssignment.where(user_id: @current_user.id).pluck(:task_id)
+      assigned = Task.where(id: assigned_task_ids)
       created = Task.where(created_by_id: @current_user.id)
       render json: { assigned: assigned, created: created }
     end

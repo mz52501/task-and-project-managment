@@ -30,7 +30,10 @@ export function EstimateCard({
           <CardTitle>Estimate</CardTitle>
           {!editingEstimate && (
             <button
-              onClick={() => { setEstimateDraft(estimate); setEditingEstimate(true); }}
+              onClick={() => {
+                setEstimateDraft(estimate);
+                setEditingEstimate(true);
+              }}
               className="text-gray-400 hover:text-gray-600 cursor-pointer"
             >
               <Pencil className="w-4 h-4" />
@@ -50,8 +53,17 @@ export function EstimateCard({
               autoFocus
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={saveEstimate} className="cursor-pointer">Save</Button>
-              <Button size="sm" variant="outline" onClick={() => setEditingEstimate(false)} className="cursor-pointer">Cancel</Button>
+              <Button size="sm" onClick={saveEstimate} className="cursor-pointer">
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditingEstimate(false)}
+                className="cursor-pointer"
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         ) : (
