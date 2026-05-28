@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_19_061548) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_28_205207) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -168,6 +168,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_061548) do
     t.datetime "deleted_at"
     t.text "description"
     t.date "due_date"
+    t.integer "estimated_minutes"
     t.uuid "parent_task_id"
     t.string "priority", default: "medium", null: false
     t.uuid "project_id", null: false

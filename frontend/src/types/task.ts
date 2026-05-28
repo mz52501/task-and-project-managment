@@ -48,4 +48,5 @@ export interface CreateTaskRequest {
   project_id: string;
   workflow_stage_id: string;
   parent_task_id?: string;
+  estimated_minutes?: number;
 }

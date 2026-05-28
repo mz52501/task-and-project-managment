@@ -6,7 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useComments } from "@/hooks/useComments";
 
-export function CommentsCard() {
+interface Props {
+  taskId: string;
+}
+
+export function CommentsCard({ taskId }: Props) {
   const {
     comments,
     newComment,
@@ -19,7 +23,7 @@ export function CommentsCard() {
     deleteComment,
     startEditComment,
     saveEditComment,
-  } = useComments();
+  } = useComments(taskId);
 
   return (
     <Card>
@@ -28,69 +32,83 @@ export function CommentsCard() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {comments.map((c) => (
-            <div key={c.id} className="group flex gap-3">
-              <Avatar className="w-8 h-8 flex-none">
-                <AvatarFallback className="text-xs bg-gray-100">{c.initials}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{c.author}</span>
-                    <span className="text-xs text-gray-400">{c.date}</span>
-                  </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => startEditComment(c)}
-                      className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => deleteComment(c.id)}
-                      className="text-gray-400 hover:text-red-500 cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-                {editingComment === c.id ? (
-                  <div className="mt-1 space-y-2">
-                    <Textarea
-                      value={editCommentContent}
-                      onChange={(e) => setEditCommentContent(e.target.value)}
-                      className="text-sm"
-                    />
-                    <div className="flex gap-2">
+          {comments.map((c) => {
+            const initials = (c as any).author_initials ?? c.user_id.slice(0, 2).toUpperCase();
+            const authorName = (c as any).author_name;
+            const date = new Date(c.created_at).toLocaleDateString();
+            return (
+              <div key={c.id} className="group flex gap-3">
+                <Avatar className="w-8 h-8 flex-none">
+                  <AvatarFallback className="text-xs bg-gray-100">{initials}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {authorName && (
+                        <span className="text-xs font-medium text-gray-700">{authorName}</span>
+                      )}
+                      <span className="text-xs text-gray-500">{date}</span>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
-                        size="sm"
-                        onClick={() => saveEditComment(c.id)}
-                        className="cursor-pointer"
+                        size="icon-xs"
+                        variant="ghost"
+                        onClick={() => startEditComment(c)}
+                        className="text-gray-400 hover:text-gray-600"
                       >
-                        Save
+                        <Pencil />
                       </Button>
                       <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setEditingComment(null)}
-                        className="cursor-pointer"
+                        size="icon-xs"
+                        variant="ghost"
+                        onClick={() => deleteComment(c.id)}
+                        className="text-gray-400 hover:text-red-500"
                       >
-                        Cancel
+                        <Trash2 />
                       </Button>
                     </div>
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-700 mt-0.5">{c.content}</p>
-                )}
+                  {editingComment === c.id ? (
+                    <div className="mt-1 space-y-2">
+                      <Textarea
+                        value={editCommentContent}
+                        onChange={(e) => setEditCommentContent(e.target.value)}
+                        className="text-sm"
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => saveEditComment(c.id)}>
+                          Save
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditingComment(null)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-700 mt-0.5">{c.content}</p>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <Separator className="my-2" />
 
           <div className="flex gap-3">
             <Avatar className="w-8 h-8 flex-none">
-              <AvatarFallback className="text-xs bg-gray-100">You</AvatarFallback>
+              <AvatarFallback className="text-xs bg-gray-100">
+                {(() => {
+                  try {
+                    const u = JSON.parse(localStorage.getItem("user") ?? "{}");
+                    return (
+                      `${u.first_name?.[0] ?? ""}${u.last_name?.[0] ?? ""}`.toUpperCase() || "Me"
+                    );
+                  } catch {
+                    return "Me";
+                  }
+                })()}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <Textarea
@@ -99,7 +117,7 @@ export function CommentsCard() {
                 onChange={(e) => setNewComment(e.target.value)}
                 className="mb-2"
               />
-              <Button size="sm" onClick={postComment} className="cursor-pointer">
+              <Button size="sm" onClick={postComment}>
                 Post Comment
               </Button>
             </div>

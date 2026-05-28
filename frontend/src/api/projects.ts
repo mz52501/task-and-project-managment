@@ -1,9 +1,31 @@
 import client from "./client";
-import { Project, CreateProjectRequest } from "@/types";
+import { Project, CreateProjectRequest, ProjectMember, WorkflowStage, Tag } from "@/types";
+
+export interface ProjectWithCounts extends Project {
+  total_tasks: number;
+  completed_tasks: number;
+  team_members: number;
+}
+
+export interface ProjectMemberDetail {
+  id: string;
+  user_id: string;
+  role: string;
+  name: string;
+  initials: string;
+}
+
+export interface ProjectDetail extends Project {
+  members: ProjectMemberDetail[];
+  stages: WorkflowStage[];
+  tags: Tag[];
+  total_tasks: number;
+  completed_tasks: number;
+}
 
 export interface ProjectsResponse {
-  owned: Project[];
-  member: Project[];
+  owned: ProjectWithCounts[];
+  member: ProjectWithCounts[];
 }
 
 export const getProjects = async (): Promise<ProjectsResponse> => {
@@ -11,8 +33,8 @@ export const getProjects = async (): Promise<ProjectsResponse> => {
   return response.data;
 };
 
-export const getProject = async (id: number): Promise<Project> => {
-  const response = await client.get<Project>(`/projects/${id}`);
+export const getProject = async (id: string): Promise<ProjectDetail> => {
+  const response = await client.get<ProjectDetail>(`/projects/${id}`);
   return response.data;
 };
 
@@ -22,13 +44,13 @@ export const createProject = async (data: CreateProjectRequest): Promise<Project
 };
 
 export const updateProject = async (
-  id: number,
+  id: string,
   data: Partial<CreateProjectRequest>
 ): Promise<Project> => {
   const response = await client.patch<Project>(`/projects/${id}`, data);
   return response.data;
 };
 
-export const deleteProject = async (id: number): Promise<void> => {
+export const deleteProject = async (id: string): Promise<void> => {
   await client.delete(`/projects/${id}`);
 };

@@ -6,10 +6,21 @@ import { Input } from "@/components/ui/input";
 import { useSubtasks } from "@/hooks/useSubtasks";
 import { StatusCircle } from "./StatusCircle";
 
-export function SubtasksCard() {
+interface Props {
+  taskId: string;
+  projectId: string;
+  defaultStageId: string;
+}
+
+export function SubtasksCard({ taskId, projectId, defaultStageId }: Props) {
   const navigate = useNavigate();
-  const { subtasks, newSubtask, setNewSubtask, addSubtask, deleteSubtask } = useSubtasks();
-  const completedCount = subtasks.filter((s) => s.status === "Done").length;
+  const { subtasks, newSubtask, setNewSubtask, addSubtask, removeSubtask } = useSubtasks(
+    taskId,
+    projectId,
+    defaultStageId
+  );
+
+  const completedCount = subtasks.filter((s) => s.workflow_stage_id === defaultStageId).length;
 
   return (
     <Card>
@@ -21,17 +32,25 @@ export function SubtasksCard() {
       <CardContent>
         <div className="space-y-2">
           {subtasks.map((st) => (
-            <div key={st.id} className="group flex items-center gap-3">
-              <StatusCircle status={st.status} />
+            <div
+              key={st.id}
+              className="group flex items-center gap-2 rounded-md hover:bg-gray-50 transition-colors"
+            >
               <button
                 onClick={() => navigate(`/task/${st.id}`)}
-                className="flex-1 text-sm text-gray-800 text-left hover:text-blue-600 transition-colors cursor-pointer"
+                className="flex flex-1 items-center gap-3 px-2 py-1.5 text-left cursor-pointer"
               >
-                {st.title}
+                <StatusCircle
+                  position={(st as any).stage_position ?? 1}
+                  totalStages={(st as any).total_stages ?? 3}
+                />
+                <span className="text-sm text-gray-800 group-hover:text-blue-600 transition-colors">
+                  {st.title}
+                </span>
               </button>
               <button
-                onClick={() => deleteSubtask(st.id)}
-                className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 cursor-pointer transition-opacity"
+                onClick={() => removeSubtask(st.id)}
+                className="mr-2 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 cursor-pointer transition-opacity"
               >
                 <X className="w-4 h-4" />
               </button>

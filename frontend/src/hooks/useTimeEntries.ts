@@ -1,73 +1,102 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getTimeEntries, createTimeEntry, updateTimeEntry, deleteTimeEntry } from "@/api/tasks";
+import { TimeEntry } from "@/types";
+import { useTimer } from "@/context/TimerContext";
 
-export interface LocalTimeEntry {
-  id: number;
-  date: string;
-  hours: string;
-  description: string;
+export function minutesToDisplay(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
 }
 
-const initialEntries: LocalTimeEntry[] = [
-  { id: 1, date: "2024-05-28", hours: "2h 30m", description: "Initial dashboard setup and layout" },
-  {
-    id: 2,
-    date: "2024-05-27",
-    hours: "3h 15m",
-    description: "Implemented chart components using Recharts",
-  },
-  {
-    id: 3,
-    date: "2024-05-26",
-    hours: "3h 0m",
-    description: "Designed dashboard wireframes and component structure",
-  },
-];
+export function parseHoursInput(input: string): number | null {
+  const cleaned = input.trim().toLowerCase();
+  const hoursMatch = cleaned.match(/(\d+(?:\.\d+)?)\s*h/);
+  const minsMatch = cleaned.match(/(\d+)\s*m/);
+  let total = 0;
+  if (hoursMatch) total += Math.round(parseFloat(hoursMatch[1]) * 60);
+  if (minsMatch) total += parseInt(minsMatch[1], 10);
+  if (!hoursMatch && !minsMatch) {
+    const num = parseFloat(cleaned);
+    if (!isNaN(num)) total = Math.round(num * 60);
+  }
+  return total > 0 ? total : null;
+}
 
-export function useTimeEntries() {
-  const [timeEntries, setTimeEntries] = useState<LocalTimeEntry[]>(initialEntries);
-  const [newTimeEntry, setNewTimeEntry] = useState({ hours: "", description: "" });
-  const [editingEntry, setEditingEntry] = useState<number | null>(null);
-  const [editEntryData, setEditEntryData] = useState({ hours: "", description: "" });
+export function useTaskTimeEntries(taskId: string) {
+  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
+  const [newEntry, setNewEntry] = useState({ hours: "", description: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState({ hours: "", description: "" });
+  const { isRunning } = useTimer();
 
-  function logTime() {
-    if (!newTimeEntry.hours.trim()) return;
-    setTimeEntries((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        date: new Date().toISOString().split("T")[0],
-        hours: newTimeEntry.hours,
-        description: newTimeEntry.description,
-      },
-    ]);
-    setNewTimeEntry({ hours: "", description: "" });
+  useEffect(() => {
+    if (!taskId) return;
+    getTimeEntries()
+      .then((all) => setTimeEntries(all.filter((e) => e.task_id === taskId)))
+      .catch(() => {});
+  }, [taskId, isRunning]);
+
+  async function logTime() {
+    const minutes = parseHoursInput(newEntry.hours);
+    if (!minutes) return;
+    try {
+      const created = await createTimeEntry({
+        task_id: taskId,
+        duration_minutes: minutes,
+        work_date: new Date().toISOString().split("T")[0],
+        comment: newEntry.description || undefined,
+      });
+      setTimeEntries((prev) => [created, ...prev]);
+      setNewEntry({ hours: "", description: "" });
+    } catch {}
   }
 
-  function deleteTimeEntry(id: number) {
-    setTimeEntries((prev) => prev.filter((e) => e.id !== id));
+  function startEdit(entry: TimeEntry) {
+    setEditingId(entry.id);
+    setEditDraft({
+      hours: minutesToDisplay(entry.duration_minutes),
+      description: entry.comment ?? "",
+    });
   }
 
-  function startEditEntry(entry: LocalTimeEntry) {
-    setEditingEntry(entry.id);
-    setEditEntryData({ hours: entry.hours, description: entry.description });
+  async function saveEdit(id: string) {
+    const minutes = parseHoursInput(editDraft.hours);
+    if (!minutes) return;
+    try {
+      const updated = await updateTimeEntry(id, {
+        duration_minutes: minutes,
+        comment: editDraft.description || undefined,
+      });
+      setTimeEntries((prev) => prev.map((e) => (e.id === id ? updated : e)));
+      setEditingId(null);
+    } catch {}
   }
 
-  function saveEditEntry(id: number) {
-    setTimeEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...editEntryData } : e)));
-    setEditingEntry(null);
+  async function removeEntry(id: string) {
+    try {
+      await deleteTimeEntry(id);
+      setTimeEntries((prev) => prev.filter((e) => e.id !== id));
+    } catch {}
   }
+
+  const totalMinutes = timeEntries.reduce((sum, e) => sum + e.duration_minutes, 0);
 
   return {
     timeEntries,
-    newTimeEntry,
-    setNewTimeEntry,
-    editingEntry,
-    setEditingEntry,
-    editEntryData,
-    setEditEntryData,
+    newEntry,
+    setNewEntry,
     logTime,
-    deleteTimeEntry,
-    startEditEntry,
-    saveEditEntry,
+    editingId,
+    setEditingId,
+    editDraft,
+    setEditDraft,
+    startEdit,
+    saveEdit,
+    removeEntry,
+    totalTracked: minutesToDisplay(totalMinutes),
+    minutesToDisplay,
   };
 }

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -8,38 +9,110 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock, User, Calendar } from "lucide-react";
-import { STATUS_OPTIONS, PRIORITY_OPTIONS, statusColors, priorityColors } from "@/constants/task";
+import { Clock, User, Calendar, Loader2, Play, Square, Folder } from "lucide-react";
+import { PRIORITY_OPTIONS, priorityColors, stageBadgeStyle } from "@/constants/task";
 import { SubtasksCard } from "@/components/task/SubtasksCard";
 import { CommentsCard } from "@/components/task/CommentsCard";
 import { EstimateCard } from "@/components/task/EstimateCard";
 import { TimeTrackingCard } from "@/components/task/TimeTrackingCard";
+import { getTask, updateTask } from "@/api/tasks";
+import { useTaskTimeEntries, minutesToDisplay, parseHoursInput } from "@/hooks/useTimeEntries";
+import { useTimer } from "@/context/TimerContext";
 
-const task = {
-  title: "Implement user dashboard",
-  description:
-    "Build a comprehensive user dashboard with charts, statistics, and user activity feeds. This should include responsive design and dark mode support.",
-  assignee: "Mike Johnson",
-  project: "E-commerce Platform",
-  projectId: "1",
-  dueDate: "2024-06-15",
-  totalTimeTracked: "8h 45m",
-};
+interface Stage {
+  id: string;
+  name: string;
+  position: number;
+}
+
+interface FullTask {
+  id: string;
+  title: string;
+  description?: string;
+  priority: string;
+  due_date?: string;
+  project_id: string;
+  project_name: string;
+  workflow_stage_id: string;
+  stage_name: string;
+  stages: Stage[];
+  assignees: { id: string; name: string; initials: string }[];
+  estimated_minutes?: number | null;
+  time_tracked: string | null;
+  created_by_name: string;
+}
 
 const Task = () => {
-  useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isRunning, taskId: runningTaskId, elapsed, start, stop } = useTimer();
 
-  const [status, setStatus] = useState("In Progress");
+  const [task, setTask] = useState<FullTask | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [stageId, setStageId] = useState("");
   const [priority, setPriority] = useState("High");
-  const [estimate, setEstimate] = useState("12h 0m");
-  const [editingEstimate, setEditingEstimate] = useState(false);
-  const [estimateDraft, setEstimateDraft] = useState(estimate);
+  const [estimate, setEstimate] = useState("");
 
-  function saveEstimate() {
-    setEstimate(estimateDraft);
-    setEditingEstimate(false);
+  const timeTracking = useTaskTimeEntries(id ?? "");
+  const { totalTracked } = timeTracking;
+  const isThisTaskRunning = isRunning && runningTaskId === id;
+
+  useEffect(() => {
+    if (!id) return;
+    getTask(id)
+      .then((data) => {
+        const t = data as unknown as FullTask;
+        setTask(t);
+        setStageId(t.workflow_stage_id);
+        setPriority(t.priority.charAt(0).toUpperCase() + t.priority.slice(1));
+        if (t.estimated_minutes) setEstimate(minutesToDisplay(t.estimated_minutes));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  function handleStatusChange(val: string) {
+    setStageId(val);
+    if (id) updateTask(id, { workflow_stage_id: val }).catch(() => {});
   }
+
+  function handlePriorityChange(val: string) {
+    setPriority(val);
+    if (id)
+      updateTask(id, { priority: val.toLowerCase() as "low" | "medium" | "high" }).catch(() => {});
+  }
+
+  function handleEstimateSave(val: string) {
+    setEstimate(val);
+    const minutes = parseHoursInput(val);
+    if (id && minutes !== null) updateTask(id, { estimated_minutes: minutes }).catch(() => {});
+  }
+
+  function formatElapsed(seconds: number) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return [h, m, s].map((v) => String(v).padStart(2, "0")).join(":");
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] bg-gray-50">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (!task) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] bg-gray-50 text-gray-500">
+        Task not found.
+      </div>
+    );
+  }
+
+  const currentStage = task.stages.find((s) => s.id === stageId);
+  const assigneeNames = task.assignees.map((a) => a.name).join(", ") || task.created_by_name;
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 py-8 px-4">
@@ -47,66 +120,123 @@ const Task = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Task header */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-2xl">{task.title}</CardTitle>
-                <p className="text-sm text-gray-500 mt-1">{task.description}</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-3">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <User className="w-4 h-4" /> {task.assignee}
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4" /> {task.dueDate}
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    {task.totalTimeTracked}
-                    {estimate && <span className="text-gray-400">/ {estimate}</span>}
-                  </div>
-                  <div className="text-gray-600">
-                    Project:{" "}
-                    <button
-                      onClick={() => navigate(`/projects/${task.projectId}`)}
-                      className="text-blue-600 hover:underline cursor-pointer"
+                <h1 className="text-2xl font-semibold leading-snug">{task.title}</h1>
+                {task.description && (
+                  <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">{task.description}</p>
+                )}
+
+                <div className="border-b border-gray-100 mt-4 -mx-4" />
+
+                {/* Top row: Project, Assignee, Due Date */}
+                <div className="grid grid-cols-3 gap-x-6 gap-y-3 text-sm mt-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      Project
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/projects/${task.project_id}`)}
+                      className="w-fit text-blue-700 border-blue-200 bg-blue-50 hover:bg-blue-100 hover:text-blue-800"
                     >
-                      {task.project}
-                    </button>
+                      <Folder />
+                      {task.project_name}
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <User className="w-3 h-3" /> Assignee
+                    </span>
+                    <span className="text-gray-700">{assigneeNames}</span>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <Calendar className="w-3 h-3" /> Due Date
+                    </span>
+                    <span className="text-gray-700">
+                      {task.due_date ? (
+                        new Date(task.due_date).toLocaleDateString()
+                      ) : (
+                        <span className="text-gray-400">Not set</span>
+                      )}
+                    </span>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex items-center gap-6 flex-wrap">
-                  <div className="flex items-center gap-2">
+
+                {/* Bottom row: Logged, Status, Priority */}
+                <div className="grid grid-cols-3 gap-x-6 gap-y-3 text-sm mt-4">
+                  <div className="flex flex-col gap-1">
+                    <span className="flex items-center gap-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      <Clock className="w-3 h-3" /> Logged Time
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="icon-xs"
+                        onClick={() => (isThisTaskRunning ? stop() : start(task.id, task.title))}
+                        title={
+                          isThisTaskRunning
+                            ? "Stop timer"
+                            : isRunning
+                              ? "Switch to this task"
+                              : "Start timer"
+                        }
+                        className={`rounded-full ${isThisTaskRunning ? "bg-red-500 hover:bg-red-600 text-white" : "bg-green-500 hover:bg-green-600 text-white"}`}
+                      >
+                        {isThisTaskRunning ? <Square /> : <Play />}
+                      </Button>
+                      <span className="text-gray-700">
+                        {isThisTaskRunning ? formatElapsed(elapsed) : totalTracked || "0m"}
+                        {estimate && <span className="text-gray-400 ml-1">/ {estimate}</span>}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Status
                     </span>
-                    <Select value={status} onValueChange={setStatus}>
+                    <Select value={stageId} onValueChange={handleStatusChange}>
                       <SelectTrigger
-                        className={`h-8 w-36 text-sm font-medium border-0 cursor-pointer ${statusColors[status]}`}
+                        className="h-8 w-36 text-sm font-medium border-0 cursor-pointer"
+                        style={
+                          currentStage
+                            ? stageBadgeStyle(
+                                (currentStage.position - 1) / Math.max(task.stages.length - 1, 1)
+                              )
+                            : undefined
+                        }
                       >
-                        <SelectValue />
+                        <span>{currentStage?.name ?? ""}</span>
                       </SelectTrigger>
                       <SelectContent>
-                        {STATUS_OPTIONS.map((s) => (
-                          <SelectItem key={s} value={s} className="cursor-pointer">
-                            <span
-                              className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${statusColors[s]}`}
-                            >
-                              {s}
-                            </span>
-                          </SelectItem>
-                        ))}
+                        {task.stages.map((s) => {
+                          const f = (s.position - 1) / Math.max(task.stages.length - 1, 1);
+                          return (
+                            <SelectItem key={s.id} value={s.id} className="cursor-pointer">
+                              <span
+                                className="w-full px-2 py-0.5 rounded-md text-xs font-medium"
+                                style={stageBadgeStyle(f)}
+                              >
+                                {s.name}
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex items-center gap-2">
+
+                  <div className="flex flex-col gap-1">
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                       Priority
                     </span>
-                    <Select value={priority} onValueChange={setPriority}>
+                    <Select value={priority} onValueChange={handlePriorityChange}>
                       <SelectTrigger
-                        className={`h-8 w-28 text-sm font-medium border-0 cursor-pointer ${priorityColors[priority]}`}
+                        className={`h-8 w-28 text-sm font-medium border-0 cursor-pointer ${priorityColors[priority] ?? ""}`}
                       >
                         <SelectValue />
                       </SelectTrigger>
@@ -124,25 +254,26 @@ const Task = () => {
                     </Select>
                   </div>
                 </div>
-              </CardContent>
+              </CardHeader>
             </Card>
 
-            <SubtasksCard />
-            <CommentsCard />
+            <SubtasksCard
+              taskId={task.id}
+              projectId={task.project_id}
+              defaultStageId={task.workflow_stage_id}
+            />
+            <CommentsCard taskId={task.id} />
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             <EstimateCard
               estimate={estimate}
-              totalTimeTracked={task.totalTimeTracked}
-              editingEstimate={editingEstimate}
-              estimateDraft={estimateDraft}
-              setEstimateDraft={setEstimateDraft}
-              setEditingEstimate={setEditingEstimate}
-              saveEstimate={saveEstimate}
+              totalTimeTracked={totalTracked || "0m"}
+              setEstimate={setEstimate}
+              onSave={handleEstimateSave}
             />
-            <TimeTrackingCard />
+            <TimeTrackingCard hook={timeTracking} />
           </div>
         </div>
       </div>

@@ -28,17 +28,21 @@ class TimerController < ApplicationController
     timer = ActiveTimer.find_by(user_id: @current_user.id)
     return render json: { error: "No timer running" }, status: :unprocessable_entity unless timer
 
-    duration_minutes = [(( Time.current - timer.started_at) / 60).round, 1].max
+    duration_minutes = ((Time.current - timer.started_at) / 60.0).round
+
+    timer.destroy!
+
+    if duration_minutes < 1
+      return render json: { running: false, time_entry: nil }
+    end
 
     entry = TimeEntry.create!(
       user: @current_user,
       task_id: timer.task_id,
       duration_minutes: duration_minutes,
       work_date: Date.today,
-      comment: "Timer entry"
+      comment: timer.task.title
     )
-
-    timer.destroy!
 
     render json: { running: false, time_entry: entry }
   end

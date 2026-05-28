@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Timer, Play, Square, ChevronDown } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getTimeEntries } from "@/api/tasks";
@@ -26,6 +26,18 @@ const TimeTrackingWidget = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showPicker, setShowPicker] = useState(false);
   const [loading, setLoading] = useState(true);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showPicker) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowPicker(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showPicker]);
 
   useEffect(() => {
     Promise.all([getTimeEntries(), getTasks()])
@@ -81,7 +93,7 @@ const TimeTrackingWidget = () => {
           </p>
 
           {!isRunning ? (
-            <div className="relative inline-block">
+            <div className="relative inline-block" ref={pickerRef}>
               <button
                 onClick={() => setShowPicker((v) => !v)}
                 className="flex items-center gap-1 px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
@@ -143,14 +155,18 @@ const TimeTrackingWidget = () => {
             <p className="text-xs text-gray-400">No entries yet</p>
           ) : (
             <div className="space-y-2 text-sm">
-              {recentEntries.map((e) => (
-                <div key={e.id} className="flex justify-between">
-                  <span className="text-gray-600 truncate max-w-[140px]">
-                    {e.comment || "Time entry"}
-                  </span>
-                  <span className="font-medium shrink-0">{formatMinutes(e.duration_minutes)}</span>
-                </div>
-              ))}
+              {recentEntries.map((e) => {
+                const taskName =
+                  tasks.find((t) => t.id === e.task_id)?.title ?? e.comment ?? "Time entry";
+                return (
+                  <div key={e.id} className="flex justify-between">
+                    <span className="text-gray-600 truncate max-w-[140px]">{taskName}</span>
+                    <span className="font-medium shrink-0">
+                      {formatMinutes(e.duration_minutes)}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

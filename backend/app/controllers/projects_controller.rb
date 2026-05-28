@@ -7,11 +7,39 @@ class ProjectsController < ApplicationController
     member = Project.joins(:project_members)
                     .where(project_members: { user_id: @current_user.id })
                     .where.not(project_members: { role: "owner" })
-    render json: { owned: owned, member: member }
+    render json: {
+      owned: serialize_projects(owned),
+      member: serialize_projects(member)
+    }
   end
 
   def show
-    render json: @project
+    members = @project.project_members.includes(:user).map do |pm|
+      {
+        id: pm.id,
+        user_id: pm.user_id,
+        role: pm.role,
+        name: "#{pm.user.first_name} #{pm.user.last_name}",
+        initials: "#{pm.user.first_name[0]}#{pm.user.last_name[0]}"
+      }
+    end
+
+    stages = @project.workflow_stages.order(:position).map do |s|
+      { id: s.id, name: s.name, position: s.position }
+    end
+
+    tags = @project.tags.map do |t|
+      { id: t.id, name: t.name, color: t.color }
+    end
+
+    render json: @project.as_json.merge(
+      members: members,
+      stages: stages,
+      tags: tags,
+      total_tasks: @project.tasks.count,
+      completed_tasks: @project.tasks.joins(:workflow_stage)
+                                .where(workflow_stages: { name: "Done" }).count
+    )
   end
 
   def create
@@ -45,5 +73,16 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.permit(:name, :description, :status, :deadline)
+  end
+
+  def serialize_projects(projects)
+    projects.map do |p|
+      p.as_json.merge(
+        total_tasks: p.tasks.count,
+        completed_tasks: p.tasks.joins(:workflow_stage)
+                          .where(workflow_stages: { name: "Done" }).count,
+        team_members: p.project_members.count
+      )
+    end
   end
 end

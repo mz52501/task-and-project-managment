@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import type { Column, Id, KanbanTask as Task } from "@/types";
+import React, { useEffect, useMemo } from "react";
+import type { Column, Id, KanbanTask } from "@/types";
 import ColumnContainer from "./ColumnContainer";
 import {
   DndContext,
@@ -14,133 +14,56 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
+import { getProjectTasks, KanbanTaskFromApi } from "@/api/tasks";
+import { WorkflowStage } from "@/types";
+import { Loader2 } from "lucide-react";
 
 interface Props {
   projectId?: string;
-  initialColumns?: Column[];
-  initialTasks?: Task[];
+  stages?: WorkflowStage[];
   height?: string;
 }
 
-const DEFAULT_COLUMNS: Column[] = [
-  { id: "col-1", title: "To Do", position: 1 },
-  { id: "col-2", title: "In Progress", position: 2 },
-  { id: "col-3", title: "Review", position: 3 },
-  { id: "col-4", title: "Done", position: 4 },
-];
+function apiTaskToKanban(t: KanbanTaskFromApi): KanbanTask {
+  return {
+    id: t.id,
+    columnId: t.workflow_stage_id,
+    title: t.title,
+    description: t.description,
+    priority: t.priority,
+    due_date: t.due_date,
+    assignees: t.assignees.map((a) => ({ id: a.id, initials: a.initials })),
+    tags: t.tags,
+    time_tracked: t.time_tracked ?? undefined,
+    subtask_count: t.subtask_count,
+    comment_count: t.comment_count,
+  };
+}
 
-const DEFAULT_TASKS: Task[] = [
-  {
-    id: "t-1",
-    columnId: "col-1",
-    title: "Design user authentication flow",
-    description: "Create wireframes and mockups for login/signup",
-    priority: "high",
-    assignees: [{ id: "u1", initials: "JD", color: "#6366f1" }],
-    time_tracked: "2h 30m",
-    subtask_count: 3,
-    comment_count: 2,
-    tags: [{ id: "tag-1", name: "Design", color: "#6366f1" }],
-  },
-  {
-    id: "t-2",
-    columnId: "col-1",
-    title: "Setup database schema",
-    description: "Define tables and relationships for core entities",
-    priority: "medium",
-    assignees: [{ id: "u2", initials: "SM", color: "#0ea5e9" }],
-    time_tracked: "1h 15m",
-    subtask_count: 5,
-    comment_count: 1,
-    tags: [{ id: "tag-2", name: "Backend", color: "#10b981" }],
-  },
-  {
-    id: "t-3",
-    columnId: "col-2",
-    title: "Implement user dashboard",
-    description: "Build responsive dashboard with charts and stats",
-    priority: "high",
-    assignees: [
-      { id: "u3", initials: "MJ", color: "#f59e0b" },
-      { id: "u4", initials: "ER", color: "#ef4444" },
-    ],
-    time_tracked: "8h 45m",
-    subtask_count: 4,
-    comment_count: 7,
-    tags: [
-      { id: "tag-3", name: "Frontend", color: "#8b5cf6" },
-      { id: "tag-4", name: "Q2", color: "#f59e0b" },
-    ],
-  },
-  {
-    id: "t-4",
-    columnId: "col-2",
-    title: "API integration",
-    description: "Connect frontend with backend services",
-    priority: "medium",
-    assignees: [{ id: "u4", initials: "ER", color: "#ef4444" }],
-    time_tracked: "5h 20m",
-    subtask_count: 2,
-    comment_count: 3,
-    tags: [{ id: "tag-2", name: "Backend", color: "#10b981" }],
-  },
-  {
-    id: "t-5",
-    columnId: "col-3",
-    title: "Payment gateway integration",
-    description: "Integrate Stripe payment system",
-    priority: "high",
-    assignees: [{ id: "u5", initials: "AB", color: "#06b6d4" }],
-    time_tracked: "12h 10m",
-    subtask_count: 6,
-    comment_count: 5,
-    tags: [{ id: "tag-5", name: "Urgent", color: "#ef4444" }],
-  },
-  {
-    id: "t-6",
-    columnId: "col-4",
-    title: "Project setup and configuration",
-    description: "Initialize React app with all dependencies",
-    priority: "low",
-    assignees: [{ id: "u1", initials: "JD", color: "#6366f1" }],
-    time_tracked: "3h 0m",
-    subtask_count: 8,
-    comment_count: 4,
-  },
-  {
-    id: "t-7",
-    columnId: "col-4",
-    title: "Design system components",
-    description: "Create reusable UI component library",
-    priority: "medium",
-    assignees: [{ id: "u2", initials: "SM", color: "#0ea5e9" }],
-    time_tracked: "6h 30m",
-    subtask_count: 12,
-    comment_count: 8,
-    tags: [
-      { id: "tag-1", name: "Design", color: "#6366f1" },
-      { id: "tag-3", name: "Frontend", color: "#8b5cf6" },
-    ],
-  },
-];
+function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: Props) {
+  const [columns, setColumns] = React.useState<Column[]>([]);
+  const [tasks, setTasks] = React.useState<KanbanTask[]>([]);
+  const [activeTask, setActiveTask] = React.useState<KanbanTask | null>(null);
+  const [loading, setLoading] = React.useState(false);
 
-function KanbanBoard({
-  projectId: _projectId = "mock-project-id",
-  initialColumns = DEFAULT_COLUMNS,
-  initialTasks = DEFAULT_TASKS,
-  height = "calc(100vh - 64px)",
-}: Props) {
-  const [columns] = React.useState<Column[]>(initialColumns);
-  const [activeTask, setActiveTask] = React.useState<Task | null>(null);
-  const [tasks, setTasks] = React.useState<Task[]>(initialTasks);
+  useEffect(() => {
+    if (stages.length > 0) {
+      setColumns(stages.map((s) => ({ id: s.id, title: s.name, position: s.position })));
+    }
+  }, [stages]);
+
+  useEffect(() => {
+    if (!projectId) return;
+    setLoading(true);
+    getProjectTasks(projectId)
+      .then((data) => setTasks(data.map(apiTaskToKanban)))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [projectId]);
 
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 10 },
-    })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
 
   function onDragStart(event: DragStartEvent) {
     if (event.active.data.current?.type === "Task") {
@@ -156,17 +79,17 @@ function KanbanBoard({
     const isOverColumn = over.data.current?.type === "Column";
 
     if (!isOverColumn) {
-      setTasks((tasks) => {
-        const activeIndex = tasks.findIndex((t) => t.id === active.id);
-        const overIndex = tasks.findIndex((t) => t.id === over.id);
-        tasks[activeIndex].columnId = tasks[overIndex].columnId;
-        return arrayMove(tasks, activeIndex, overIndex);
+      setTasks((prev) => {
+        const activeIndex = prev.findIndex((t) => t.id === active.id);
+        const overIndex = prev.findIndex((t) => t.id === over.id);
+        prev[activeIndex].columnId = prev[overIndex].columnId;
+        return arrayMove(prev, activeIndex, overIndex);
       });
     } else {
-      setTasks((tasks) => {
-        const activeIndex = tasks.findIndex((t) => t.id === active.id);
-        tasks[activeIndex].columnId = over.id;
-        return arrayMove(tasks, activeIndex, activeIndex);
+      setTasks((prev) => {
+        const activeIndex = prev.findIndex((t) => t.id === active.id);
+        prev[activeIndex].columnId = over.id;
+        return arrayMove(prev, activeIndex, activeIndex);
       });
     }
   }
@@ -181,27 +104,35 @@ function KanbanBoard({
 
     if (isOverColumn) {
       if (tasks[activeIndex]?.columnId !== over.id) {
-        setTasks((tasks) => {
-          tasks[activeIndex].columnId = over.id;
-          return arrayMove(tasks, activeIndex, activeIndex);
+        setTasks((prev) => {
+          prev[activeIndex].columnId = over.id;
+          return arrayMove(prev, activeIndex, activeIndex);
         });
       }
     } else {
       if (tasks[activeIndex]?.columnId !== tasks[overIndex]?.columnId) {
-        setTasks((tasks) => {
-          tasks[activeIndex].columnId = tasks[overIndex].columnId;
-          return arrayMove(tasks, activeIndex, overIndex);
+        setTasks((prev) => {
+          prev[activeIndex].columnId = prev[overIndex].columnId;
+          return arrayMove(prev, activeIndex, overIndex);
         });
       }
     }
   }
 
   function deleteTask(id: Id) {
-    setTasks((tasks) => tasks.filter((t) => t.id !== id));
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   }
 
   function onAddTask(_columnId: Id) {
-    // TODO: open create task modal, pass columnId as default workflow_stage_id
+    // TODO: open create task modal
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
   }
 
   return (

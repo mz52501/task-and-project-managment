@@ -6,8 +6,24 @@ export interface TasksResponse {
   created: Task[];
 }
 
+export interface KanbanTaskFromApi extends Task {
+  stage_name: string;
+  assignees: { id: string; name: string; initials: string }[];
+  tags: { id: string; name: string; color: string }[];
+  subtask_count: number;
+  comment_count: number;
+  time_tracked: string | null;
+}
+
 export const getTasks = async (): Promise<TasksResponse> => {
   const response = await client.get<TasksResponse>("/tasks");
+  return response.data;
+};
+
+export const getProjectTasks = async (projectId: string): Promise<KanbanTaskFromApi[]> => {
+  const response = await client.get<KanbanTaskFromApi[]>("/tasks", {
+    params: { project_id: projectId },
+  });
   return response.data;
 };
 
@@ -40,7 +56,7 @@ export const createComment = async (taskId: string, content: string): Promise<Co
   return response.data;
 };
 
-export const getChildTasks = async (parentTaskId: number): Promise<Task[]> => {
+export const getChildTasks = async (parentTaskId: string): Promise<Task[]> => {
   const response = await client.get<Task[]>("/tasks", { params: { parent_task_id: parentTaskId } });
   return response.data;
 };
@@ -79,4 +95,25 @@ export const createTimeEntry = async (data: {
 }): Promise<TimeEntry> => {
   const response = await client.post<TimeEntry>("/time_entries", data);
   return response.data;
+};
+
+export const updateTimeEntry = async (
+  id: string,
+  data: { duration_minutes?: number; comment?: string; work_date?: string }
+): Promise<TimeEntry> => {
+  const response = await client.patch<TimeEntry>(`/time_entries/${id}`, data);
+  return response.data;
+};
+
+export const deleteTimeEntry = async (id: string): Promise<void> => {
+  await client.delete(`/time_entries/${id}`);
+};
+
+export const updateComment = async (id: string, content: string): Promise<Comment> => {
+  const response = await client.patch<Comment>(`/comments/${id}`, { content });
+  return response.data;
+};
+
+export const deleteCommentById = async (id: string): Promise<void> => {
+  await client.delete(`/comments/${id}`);
 };

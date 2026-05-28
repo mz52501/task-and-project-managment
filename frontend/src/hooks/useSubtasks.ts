@@ -1,27 +1,47 @@
-import { useState } from "react";
-import { Subtask } from "@/types/task";
+import { useEffect, useState } from "react";
+import { getChildTasks, createChildTask } from "@/api/tasks";
+import { getProject } from "@/api/projects";
+import { Task } from "@/types";
 
-const initialSubtasks: Subtask[] = [
-  { id: 1, title: "Create dashboard layout", status: "Done" },
-  { id: 2, title: "Implement charts component", status: "Done" },
-  { id: 3, title: "Add user statistics", status: "In Progress" },
-  { id: 4, title: "Implement activity feed", status: "To Do" },
-  { id: 5, title: "Add responsive design", status: "To Do" },
-];
-
-export function useSubtasks() {
-  const [subtasks, setSubtasks] = useState<Subtask[]>(initialSubtasks);
+export function useSubtasks(taskId: string, projectId: string, defaultStageId: string) {
+  const [subtasks, setSubtasks] = useState<Task[]>([]);
   const [newSubtask, setNewSubtask] = useState("");
+  const [todoStageId, setTodoStageId] = useState(defaultStageId);
 
-  function addSubtask() {
-    if (!newSubtask.trim()) return;
-    setSubtasks((prev) => [...prev, { id: Date.now(), title: newSubtask.trim(), status: "To Do" }]);
-    setNewSubtask("");
+  useEffect(() => {
+    if (!taskId) return;
+    getChildTasks(taskId)
+      .then(setSubtasks)
+      .catch(() => {});
+  }, [taskId]);
+
+  useEffect(() => {
+    if (!projectId) return;
+    getProject(projectId)
+      .then((p) => {
+        const todo = p.stages.find((s) => s.name === "To Do");
+        if (todo) setTodoStageId(todo.id);
+      })
+      .catch(() => {});
+  }, [projectId]);
+
+  async function addSubtask() {
+    if (!newSubtask.trim() || !projectId || !todoStageId) return;
+    try {
+      const created = await createChildTask({
+        title: newSubtask.trim(),
+        project_id: projectId,
+        workflow_stage_id: todoStageId,
+        parent_task_id: taskId,
+      });
+      setSubtasks((prev) => [...prev, created]);
+      setNewSubtask("");
+    } catch {}
   }
 
-  function deleteSubtask(id: number) {
+  function removeSubtask(id: string) {
     setSubtasks((prev) => prev.filter((s) => s.id !== id));
   }
 
-  return { subtasks, newSubtask, setNewSubtask, addSubtask, deleteSubtask };
+  return { subtasks, newSubtask, setNewSubtask, addSubtask, removeSubtask };
 }

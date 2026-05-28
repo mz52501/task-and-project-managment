@@ -15,6 +15,16 @@ class TimeEntriesController < ApplicationController
     end
   end
 
+  def update
+    entry = TimeEntry.find(params[:id])
+    if entry.user_id == @current_user.id
+      entry.update!(time_entry_params)
+      render json: entry
+    else
+      render json: { error: "Forbidden" }, status: :forbidden
+    end
+  end
+
   def destroy
     entry = TimeEntry.find(params[:id])
     if entry.user_id == @current_user.id

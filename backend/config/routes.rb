@@ -20,8 +20,8 @@ Rails.application.routes.draw do
     resources :tags, controller: "task_tags", only: [ :create, :destroy ]
   end
 
-  resources :comments, only: [ :destroy ]
-  resources :time_entries, only: [ :index, :create, :destroy ]
+  resources :comments, only: [ :update, :destroy ]
+  resources :time_entries, only: [ :index, :create, :update, :destroy ]
   resources :notifications, only: [ :index ] do
     member do
       patch :mark_read

@@ -1,21 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Calendar,
-  Plus,
-  Pencil,
-  UserPlus,
-  X,
-  CheckCircle2,
-  GitCommit,
-  MessageCircle,
-  UserPlus2,
-} from "lucide-react";
+import { Calendar, Plus, Pencil, UserPlus, X, Loader2 } from "lucide-react";
 import KanbanBoard from "@/components/KanbanBoard";
+import { getProject, ProjectDetail as ProjectDetailType } from "@/api/projects";
 
 const statusStyles: Record<string, string> = {
   active: "bg-blue-100 text-blue-800 hover:bg-blue-100",
@@ -39,62 +30,33 @@ const tagColors = [
 ];
 
 const ProjectDetail = () => {
-  useParams();
+  const { id } = useParams<{ id: string }>();
+  const [project, setProject] = useState<ProjectDetailType | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const project = {
-    name: "E-commerce Platform",
-    description:
-      "Build a modern, scalable e-commerce platform with checkout, inventory, and analytics.",
-    status: "active",
-    deadline: "Jun 30, 2026",
-    members: [
-      { initials: "JD", name: "Jane Doe", role: "owner" },
-      { initials: "SM", name: "Sam Miller", role: "developer" },
-      { initials: "MJ", name: "Mia Johnson", role: "developer" },
-      { initials: "ER", name: "Eli Ramirez", role: "developer" },
-      { initials: "AB", name: "Alex Brown", role: "client" },
-    ],
-    tags: ["Frontend", "Backend", "Design", "Urgent", "Q2"],
-  };
+  useEffect(() => {
+    if (!id) return;
+    getProject(id)
+      .then(setProject)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  const activity = [
-    {
-      icon: CheckCircle2,
-      color: "text-green-600 bg-green-50",
-      text: 'Mia completed "Implement user dashboard"',
-      time: "2 min ago",
-    },
-    {
-      icon: MessageCircle,
-      color: "text-blue-600 bg-blue-50",
-      text: 'Sam commented on "Setup database schema"',
-      time: "24 min ago",
-    },
-    {
-      icon: GitCommit,
-      color: "text-purple-600 bg-purple-50",
-      text: "Eli pushed 3 commits to API integration",
-      time: "1 h ago",
-    },
-    {
-      icon: UserPlus2,
-      color: "text-orange-600 bg-orange-50",
-      text: "Alex was added as a client",
-      time: "3 h ago",
-    },
-    {
-      icon: CheckCircle2,
-      color: "text-green-600 bg-green-50",
-      text: 'Jane completed "Project setup"',
-      time: "Yesterday",
-    },
-    {
-      icon: MessageCircle,
-      color: "text-blue-600 bg-blue-50",
-      text: 'New comment on "Payment gateway integration"',
-      time: "2 d ago",
-    },
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gray-50">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-64px)] bg-gray-50 text-gray-500">
+        Project not found.
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 flex flex-col h-[calc(100vh-64px)] overflow-hidden">
@@ -107,23 +69,29 @@ const ProjectDetail = () => {
                 <div className="flex items-center gap-3 flex-wrap">
                   <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
                   <Badge
-                    className={`capitalize ${statusStyles[project.status]}`}
+                    className={`capitalize ${statusStyles[project.status] ?? ""}`}
                     variant="secondary"
                   >
                     {project.status.replace("_", " ")}
                   </Badge>
                 </div>
-                <p className="text-gray-500 mt-1 text-sm">{project.description}</p>
+                {project.description && (
+                  <p className="text-gray-500 mt-1 text-sm">{project.description}</p>
+                )}
                 <div className="flex items-center gap-6 mt-3 flex-wrap">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Deadline:{" "}
-                    <span className="font-medium text-gray-900 ml-1">{project.deadline}</span>
-                  </div>
+                  {project.deadline && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Deadline:{" "}
+                      <span className="font-medium text-gray-900 ml-1">
+                        {new Date(project.deadline).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center">
                     {project.members.slice(0, 5).map((m, i) => (
                       <Avatar
-                        key={i}
+                        key={m.id}
                         className={`w-7 h-7 border-2 border-white ${i > 0 ? "-ml-2" : ""}`}
                       >
                         <AvatarFallback className="text-xs bg-gray-100">
@@ -154,9 +122,9 @@ const ProjectDetail = () => {
 
       {/* Main content */}
       <div className="flex-1 flex gap-4 px-8 py-4 min-h-0 overflow-hidden max-w-[1800px] mx-auto w-full">
-        {/* Kanban — takes remaining height */}
+        {/* Kanban */}
         <div className="flex-[3] min-w-0 min-h-0">
-          <KanbanBoard height="100%" />
+          <KanbanBoard projectId={project.id} stages={project.stages} height="100%" />
         </div>
 
         {/* Sidebar */}
@@ -167,9 +135,9 @@ const ProjectDetail = () => {
               <CardTitle className="text-sm font-semibold">Members</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-1">
-              {project.members.map((m, i) => (
+              {project.members.map((m) => (
                 <div
-                  key={i}
+                  key={m.id}
                   className="group flex items-center justify-between p-2 rounded-lg hover:bg-gray-50"
                 >
                   <div className="flex items-center gap-3">
@@ -179,7 +147,7 @@ const ProjectDetail = () => {
                     <div>
                       <p className="text-sm font-medium text-gray-900">{m.name}</p>
                       <Badge
-                        className={`capitalize text-xs ${roleStyles[m.role]}`}
+                        className={`capitalize text-xs ${roleStyles[m.role] ?? ""}`}
                         variant="secondary"
                       >
                         {m.role}
@@ -199,51 +167,28 @@ const ProjectDetail = () => {
           </Card>
 
           {/* Tags */}
-          <Card className="rounded-xl flex-none">
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-semibold">Tags</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map((t, i) => (
-                  <span
-                    key={i}
-                    className={`text-xs px-2.5 py-1 rounded-full border ${tagColors[i % tagColors.length]}`}
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-              <Button variant="outline" size="sm" className="mt-3">
-                <Plus className="w-4 h-4" /> Add Tag
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Activity */}
-          <Card className="rounded-xl flex-none">
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-semibold">Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <div className="space-y-3">
-                {activity.map((a, i) => {
-                  const Icon = a.icon;
-                  return (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className={`p-1.5 rounded-full flex-none ${a.color}`}>
-                        <Icon className="w-3.5 h-3.5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-700 leading-snug">{a.text}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{a.time}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          {project.tags.length > 0 && (
+            <Card className="rounded-xl flex-none">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-semibold">Tags</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((t, i) => (
+                    <span
+                      key={t.id}
+                      className={`text-xs px-2.5 py-1 rounded-full border ${tagColors[i % tagColors.length]}`}
+                    >
+                      {t.name}
+                    </span>
+                  ))}
+                </div>
+                <Button variant="outline" size="sm" className="mt-3">
+                  <Plus className="w-4 h-4" /> Add Tag
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

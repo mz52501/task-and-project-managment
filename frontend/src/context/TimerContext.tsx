@@ -31,6 +31,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) return;
+
     getTimerStatus()
       .then((status) => {
         if (status.running && status.started_at) {

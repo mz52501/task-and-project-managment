@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
-import { MyNavbar } from "@/pages/MyNavbar";
+import AppLayout from "@/pages/AppLayout";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Registration from "@/pages/Registration";
@@ -36,7 +36,7 @@ export default function AppRouter() {
 
         {/* Protected pages */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<MyNavbar />}>
+          <Route path="/" element={<AppLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:id" element={<ProjectDetail />} />

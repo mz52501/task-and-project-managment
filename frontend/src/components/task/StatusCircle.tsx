@@ -1,13 +1,17 @@
-import { STATUS_OPTIONS, statusStroke } from "@/constants/task";
+import { stageStrokeColor } from "@/constants/task";
 
-export function StatusCircle({ status }: { status: string }) {
-  const index = STATUS_OPTIONS.indexOf(status);
-  const fraction = index / (STATUS_OPTIONS.length - 1);
+interface Props {
+  position: number;
+  totalStages: number;
+}
+
+export function StatusCircle({ position, totalStages }: Props) {
+  const fraction = totalStages <= 1 ? 1 : (position - 1) / (totalStages - 1);
+  const color = stageStrokeColor(fraction);
   const cx = 10,
     cy = 10;
   const outerR = 9;
   const innerR = 6.5;
-  const color = statusStroke[status] ?? "#9ca3af";
 
   const pieSlice = () => {
     if (fraction <= 0) return null;
