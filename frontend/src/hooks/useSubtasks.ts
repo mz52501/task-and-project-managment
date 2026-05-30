@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getChildTasks, createChildTask } from "@/api/tasks";
 import { getProject } from "@/api/projects";
 import { Task } from "@/types";
+import { toast } from "sonner";
 
 export function useSubtasks(taskId: string, projectId: string, defaultStageId: string) {
   const [subtasks, setSubtasks] = useState<Task[]>([]);
@@ -12,7 +13,7 @@ export function useSubtasks(taskId: string, projectId: string, defaultStageId: s
     if (!taskId) return;
     getChildTasks(taskId)
       .then(setSubtasks)
-      .catch(() => {});
+      .catch(() => toast.error("Failed to load subtasks"));
   }, [taskId]);
 
   useEffect(() => {
@@ -36,7 +37,9 @@ export function useSubtasks(taskId: string, projectId: string, defaultStageId: s
       });
       setSubtasks((prev) => [...prev, created]);
       setNewSubtask("");
-    } catch {}
+    } catch {
+      toast.error("Failed to add subtask");
+    }
   }
 
   function removeSubtask(id: string) {

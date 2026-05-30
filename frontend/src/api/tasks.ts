@@ -9,7 +9,7 @@ export interface TasksResponse {
 export interface KanbanTaskFromApi extends Task {
   stage_name: string;
   assignees: { id: string; name: string; initials: string }[];
-  tags: { id: string; name: string; color: string }[];
+  tags: { id: string; name: string }[];
   subtask_count: number;
   comment_count: number;
   time_tracked: string | null;

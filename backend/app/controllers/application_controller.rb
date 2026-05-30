@@ -13,4 +13,8 @@ class ApplicationController < ActionController::API
   rescue StandardError => e
     render json: { error: "Unauthorized: #{e.message}" }, status: :unauthorized
   end
+
+  def current_user
+    @current_user
+  end
 end

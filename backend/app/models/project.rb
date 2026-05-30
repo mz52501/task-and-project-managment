@@ -1,5 +1,5 @@
 class Project < ApplicationRecord
-  enum :status, { active: "active", on_hold: "on_hold", completed: "completed", archived: "archived" }, default: "active"
+  enum :status, { planning: "planning", active: "active", on_hold: "on_hold", completed: "completed", archived: "archived" }, default: "planning"
 
   include Discard::Model
 

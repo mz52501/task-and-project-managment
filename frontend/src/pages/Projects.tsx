@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Calendar, User, Plus, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { getProjects } from "@/api/projects";
 import { Project } from "@/types";
 
@@ -55,13 +56,10 @@ const Projects = () => {
             <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
             <p className="text-gray-600 mt-2">Manage and track your project progress</p>
           </div>
-          <button
-            onClick={() => navigate("/projects/new")}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-semibold shadow cursor-pointer transition-colors"
-          >
+          <Button onClick={() => navigate("/projects/new")}>
             <Plus className="w-4 h-4" />
             Create New Project
-          </button>
+          </Button>
         </div>
 
         {loading ? (

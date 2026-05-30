@@ -1,4 +1,5 @@
-import { Id, KanbanTask as Task } from "@/types";
+import { Id, KanbanTask as Task, TaskDragData } from "@/types";
+import { tagColor } from "@/constants/project";
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -92,12 +93,7 @@ function TaskCard({ task, deleteTask }: Props) {
               {task.tags.map((tag) => (
                 <span
                   key={tag.id}
-                  className="text-xs px-1.5 py-0.5 rounded-full border"
-                  style={{
-                    color: tag.color,
-                    borderColor: tag.color,
-                    backgroundColor: `${tag.color}18`,
-                  }}
+                  className={`text-xs px-1.5 py-0.5 rounded-full border ${tagColor(tag.name)}`}
                 >
                   {tag.name}
                 </span>

@@ -70,7 +70,7 @@ const Notifications = () => {
             </p>
           </div>
           {unreadCount > 0 && (
-            <Button variant="outline" size="sm" onClick={markAllRead}>
+            <Button variant="outline"  onClick={markAllRead}>
               <MailOpen className="w-4 h-4 mr-2" />
               Mark all as read
             </Button>

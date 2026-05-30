@@ -11,6 +11,7 @@ import ProjectDetail from "@/pages/ProjectDetail";
 import Task from "@/pages/Task";
 import Profile from "@/pages/Profile";
 import Notifications from "@/pages/Notifications";
+import CreateProject from "@/pages/CreateProject";
 import NotFound from "@/pages/NotFound";
 
 function ProtectedRoute() {
@@ -39,6 +40,7 @@ export default function AppRouter() {
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="projects/new" element={<CreateProject />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
             <Route path="task/:id" element={<Task />} />
             <Route path="profile" element={<Profile />} />

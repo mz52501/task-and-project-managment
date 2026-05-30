@@ -1,6 +1,6 @@
 import { User } from "./auth";
 
-export type ProjectStatus = "active" | "on_hold" | "completed" | "archived";
+export type ProjectStatus = "planning" | "active" | "on_hold" | "completed" | "archived";
 export type MemberRole = "owner" | "developer" | "client";
 
 export interface Project {
@@ -21,18 +21,25 @@ export interface ProjectMember {
   user?: User;
 }
 
+export interface ProjectMemberInput {
+  user_id: string;
+  role: MemberRole;
+}
+
 export interface CreateProjectRequest {
   name: string;
   description?: string;
   status?: ProjectStatus;
   deadline?: string;
+  start_date?: string;
+  members?: ProjectMemberInput[];
+  tags?: string[];
 }
 
 export interface Tag {
   id: string;
   project_id: string;
   name: string;
-  color: string;
   created_at: string;
   updated_at: string;
 }

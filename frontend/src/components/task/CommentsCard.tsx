@@ -6,6 +6,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useComments } from "@/hooks/useComments";
 
+interface EnrichedComment {
+  id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  author_name?: string;
+  author_initials?: string;
+}
+
 interface Props {
   taskId: string;
 }
@@ -32,9 +41,9 @@ export function CommentsCard({ taskId }: Props) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {comments.map((c) => {
-            const initials = (c as any).author_initials ?? c.user_id.slice(0, 2).toUpperCase();
-            const authorName = (c as any).author_name;
+          {(comments as EnrichedComment[]).map((c) => {
+            const initials = c.author_initials ?? c.user_id.slice(0, 2).toUpperCase();
+            const authorName = c.author_name;
             const date = new Date(c.created_at).toLocaleDateString();
             return (
               <div key={c.id} className="group flex gap-3">
@@ -77,10 +86,10 @@ export function CommentsCard({ taskId }: Props) {
                         autoFocus
                       />
                       <div className="flex gap-2">
-                        <Button size="sm" onClick={() => saveEditComment(c.id)}>
+                        <Button  onClick={() => saveEditComment(c.id)}>
                           Save
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEditingComment(null)}>
+                        <Button  variant="outline" onClick={() => setEditingComment(null)}>
                           Cancel
                         </Button>
                       </div>
@@ -117,7 +126,7 @@ export function CommentsCard({ taskId }: Props) {
                 onChange={(e) => setNewComment(e.target.value)}
                 className="mb-2"
               />
-              <Button size="sm" onClick={postComment}>
+              <Button  onClick={postComment}>
                 Post Comment
               </Button>
             </div>

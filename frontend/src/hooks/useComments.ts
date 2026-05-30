@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getComments, createComment, updateComment, deleteCommentById } from "@/api/tasks";
 import { Comment } from "@/types";
+import { toast } from "sonner";
 
 export function useComments(taskId: string) {
   const [comments, setComments] = useState<Comment[]>([]);
@@ -12,7 +13,7 @@ export function useComments(taskId: string) {
     if (!taskId) return;
     getComments(taskId)
       .then(setComments)
-      .catch(() => {});
+      .catch(() => toast.error("Failed to load comments"));
   }, [taskId]);
 
   async function postComment() {
@@ -21,14 +22,19 @@ export function useComments(taskId: string) {
       const created = await createComment(taskId, newComment.trim());
       setComments((prev) => [...prev, created]);
       setNewComment("");
-    } catch {}
+    } catch {
+      toast.error("Failed to post comment");
+    }
   }
 
   async function deleteComment(id: string) {
     try {
       await deleteCommentById(id);
       setComments((prev) => prev.filter((c) => c.id !== id));
-    } catch {}
+      toast.success("Comment deleted");
+    } catch {
+      toast.error("Failed to delete comment");
+    }
   }
 
   function startEditComment(c: Comment) {
@@ -41,7 +47,9 @@ export function useComments(taskId: string) {
       const updated = await updateComment(id, editCommentContent);
       setComments((prev) => prev.map((c) => (c.id === id ? updated : c)));
       setEditingComment(null);
-    } catch {}
+    } catch {
+      toast.error("Failed to update comment");
+    }
   }
 
   return {

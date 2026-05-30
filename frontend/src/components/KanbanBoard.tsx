@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import type { Column, Id, KanbanTask } from "@/types";
+import type { Id, KanbanTask } from "@/types";
 import ColumnContainer from "./ColumnContainer";
 import {
   DndContext,
@@ -14,7 +14,7 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
-import { getProjectTasks, KanbanTaskFromApi } from "@/api/tasks";
+import { getProjectTasks, updateTask, deleteTask as deleteTaskApi, KanbanTaskFromApi } from "@/api/tasks";
 import { WorkflowStage } from "@/types";
 import { Loader2 } from "lucide-react";
 
@@ -40,25 +40,37 @@ function apiTaskToKanban(t: KanbanTaskFromApi): KanbanTask {
   };
 }
 
+function getTaskFromDragData(data: Record<string, unknown> | undefined): KanbanTask | null {
+  if (data?.type === "Task" && data.task && typeof data.task === "object") {
+    return data.task as KanbanTask;
+  }
+  return null;
+}
+
 function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: Props) {
-  const [columns, setColumns] = React.useState<Column[]>([]);
+  const columns = React.useMemo(
+    () => stages.map((s) => ({ id: s.id, title: s.name, position: s.position })),
+    [stages]
+  );
   const [tasks, setTasks] = React.useState<KanbanTask[]>([]);
   const [activeTask, setActiveTask] = React.useState<KanbanTask | null>(null);
-  const [loading, setLoading] = React.useState(false);
-
-  useEffect(() => {
-    if (stages.length > 0) {
-      setColumns(stages.map((s) => ({ id: s.id, title: s.name, position: s.position })));
-    }
-  }, [stages]);
+  const [loading, setLoading] = React.useState(true);
+  const dragStartColumnRef = React.useRef<Id | null>(null);
 
   useEffect(() => {
     if (!projectId) return;
-    setLoading(true);
+    let cancelled = false;
     getProjectTasks(projectId)
-      .then((data) => setTasks(data.map(apiTaskToKanban)))
+      .then((data) => {
+        if (!cancelled) setTasks(data.map(apiTaskToKanban));
+      })
       .catch(() => {})
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [projectId]);
 
   const columnsIds = useMemo(() => columns.map((c) => c.id), [columns]);
@@ -66,8 +78,10 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
 
   function onDragStart(event: DragStartEvent) {
-    if (event.active.data.current?.type === "Task") {
-      setActiveTask(event.active.data.current.task);
+    const task = getTaskFromDragData(event.active.data.current);
+    if (task) {
+      setActiveTask(task);
+      dragStartColumnRef.current = task.columnId;
     }
   }
 
@@ -76,22 +90,29 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
     const { active, over } = event;
     if (!over) return;
 
+    const taskId = String(active.id);
     const isOverColumn = over.data.current?.type === "Column";
 
-    if (!isOverColumn) {
-      setTasks((prev) => {
-        const activeIndex = prev.findIndex((t) => t.id === active.id);
-        const overIndex = prev.findIndex((t) => t.id === over.id);
-        prev[activeIndex].columnId = prev[overIndex].columnId;
-        return arrayMove(prev, activeIndex, overIndex);
-      });
-    } else {
-      setTasks((prev) => {
-        const activeIndex = prev.findIndex((t) => t.id === active.id);
-        prev[activeIndex].columnId = over.id;
-        return arrayMove(prev, activeIndex, activeIndex);
-      });
+    const newColumnId: Id | undefined = isOverColumn
+      ? over.id
+      : tasks.find((t) => t.id === over.id)?.columnId;
+
+    if (!newColumnId) return;
+
+    if (dragStartColumnRef.current !== newColumnId) {
+      updateTask(taskId, { workflow_stage_id: String(newColumnId) }).catch(() => {});
     }
+    dragStartColumnRef.current = null;
+
+    setTasks((prev) => {
+      const activeIndex = prev.findIndex((t) => t.id === active.id);
+      if (activeIndex === -1) return prev;
+      const updated = [...prev];
+      updated[activeIndex] = { ...updated[activeIndex], columnId: newColumnId };
+      if (isOverColumn) return arrayMove(updated, activeIndex, activeIndex);
+      const overIndex = updated.findIndex((t) => t.id === over.id);
+      return arrayMove(updated, activeIndex, overIndex);
+    });
   }
 
   function onDragOver(event: DragOverEvent) {
@@ -105,15 +126,17 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
     if (isOverColumn) {
       if (tasks[activeIndex]?.columnId !== over.id) {
         setTasks((prev) => {
-          prev[activeIndex].columnId = over.id;
-          return arrayMove(prev, activeIndex, activeIndex);
+          const updated = [...prev];
+          updated[activeIndex] = { ...updated[activeIndex], columnId: over.id };
+          return arrayMove(updated, activeIndex, activeIndex);
         });
       }
     } else {
       if (tasks[activeIndex]?.columnId !== tasks[overIndex]?.columnId) {
         setTasks((prev) => {
-          prev[activeIndex].columnId = prev[overIndex].columnId;
-          return arrayMove(prev, activeIndex, overIndex);
+          const updated = [...prev];
+          updated[activeIndex] = { ...updated[activeIndex], columnId: prev[overIndex].columnId };
+          return arrayMove(updated, activeIndex, overIndex);
         });
       }
     }
@@ -121,6 +144,7 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
 
   function deleteTask(id: Id) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    deleteTaskApi(String(id)).catch(() => {});
   }
 
   function onAddTask(_columnId: Id) {
@@ -136,7 +160,7 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
   }
 
   return (
-    <div className="flex overflow-x-auto min-h-0 gap-4" style={{ height }}>
+    <div className="flex overflow-x-auto min-h-0 gap-4 kanban-scroll pb-3" style={{ height }}>
       <DndContext
         sensors={sensors}
         onDragStart={onDragStart}

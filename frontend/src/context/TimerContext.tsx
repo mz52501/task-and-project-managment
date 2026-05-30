@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { getTimerStatus, startTimer, stopTimer } from "@/api/timer";
+import { toast } from "sonner";
 
 interface TimerContextValue {
   isRunning: boolean;
@@ -50,7 +51,11 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   async function start(tid: string, title: string) {
-    const status = await startTimer(tid);
+    const status = await startTimer(tid).catch(() => {
+      toast.error("Failed to start timer");
+      return null;
+    });
+    if (!status) return;
     setIsRunning(true);
     setTaskId(tid);
     setTaskTitle(title);
@@ -58,13 +63,18 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function stop() {
-    await stopTimer();
+    const result = await stopTimer().catch(() => {
+      toast.error("Failed to stop timer");
+      return null;
+    });
+    if (result === null) return;
     if (intervalRef.current) clearInterval(intervalRef.current);
     setIsRunning(false);
     setElapsed(0);
     setTaskId(null);
     setTaskTitle(null);
     startedAtRef.current = null;
+    if (result.time_entry) toast.success("Time logged");
   }
 
   return (

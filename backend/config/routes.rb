@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   post "auth/register", to: "auth#register"
 
   resources :users, only: [ :index, :show ]
+  get   "me", to: "users#me"
+  patch "me", to: "users#update_me"
 
   resources :projects do
     resources :members, controller: "project_members", only: [ :create, :destroy ]

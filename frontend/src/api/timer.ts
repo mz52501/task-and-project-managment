@@ -17,6 +17,12 @@ export const startTimer = async (taskId: string): Promise<TimerStatus> => {
   return res.data;
 };
 
-export const stopTimer = async (): Promise<void> => {
-  await client.post("/timer/stop");
+export interface StopTimerResponse {
+  running: false;
+  time_entry: object | null;
+}
+
+export const stopTimer = async (): Promise<StopTimerResponse> => {
+  const res = await client.post<StopTimerResponse>("/timer/stop");
+  return res.data;
 };

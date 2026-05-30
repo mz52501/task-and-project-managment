@@ -6,6 +6,14 @@ import { Input } from "@/components/ui/input";
 import { useSubtasks } from "@/hooks/useSubtasks";
 import { StatusCircle } from "./StatusCircle";
 
+interface EnrichedSubtask {
+  id: string;
+  title: string;
+  workflow_stage_id: string;
+  stage_position?: number;
+  total_stages?: number;
+}
+
 interface Props {
   taskId: string;
   projectId: string;
@@ -31,7 +39,7 @@ export function SubtasksCard({ taskId, projectId, defaultStageId }: Props) {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {subtasks.map((st) => (
+          {(subtasks as EnrichedSubtask[]).map((st) => (
             <div
               key={st.id}
               className="group flex items-center gap-2 rounded-md hover:bg-gray-50 transition-colors"
@@ -41,8 +49,8 @@ export function SubtasksCard({ taskId, projectId, defaultStageId }: Props) {
                 className="flex flex-1 items-center gap-3 px-2 py-1.5 text-left cursor-pointer"
               >
                 <StatusCircle
-                  position={(st as any).stage_position ?? 1}
-                  totalStages={(st as any).total_stages ?? 3}
+                  position={st.stage_position ?? 1}
+                  totalStages={st.total_stages ?? 3}
                 />
                 <span className="text-sm text-gray-800 group-hover:text-blue-600 transition-colors">
                   {st.title}
@@ -65,7 +73,7 @@ export function SubtasksCard({ taskId, projectId, defaultStageId }: Props) {
             onKeyDown={(e) => e.key === "Enter" && addSubtask()}
             className="flex-1"
           />
-          <Button size="sm" onClick={addSubtask} className="cursor-pointer">
+          <Button  onClick={addSubtask} className="cursor-pointer">
             <Plus className="w-4 h-4 mr-1" /> Add
           </Button>
         </div>

@@ -29,7 +29,7 @@ class ProjectsController < ApplicationController
     end
 
     tags = @project.tags.map do |t|
-      { id: t.id, name: t.name, color: t.color }
+      { id: t.id, name: t.name }
     end
 
     render json: @project.as_json.merge(
@@ -44,12 +44,25 @@ class ProjectsController < ApplicationController
 
   def create
     project = Project.new(project_params)
-    if project.save
+    ActiveRecord::Base.transaction do
+      project.save!
       project.project_members.create!(user: @current_user, role: "owner")
-      render json: project, status: :created
-    else
-      render json: { errors: project.errors.full_messages }, status: :unprocessable_entity
+
+      Array(params[:members]).each do |m|
+        user_id = m[:user_id] || m["user_id"]
+        role = m[:role] || m["role"] || "developer"
+        next if user_id.blank? || user_id.to_s == @current_user.id.to_s
+        user = User.find_by(id: user_id)
+        project.project_members.create!(user: user, role: role) if user
+      end
+
+      Array(params[:tags]).reject(&:blank?).each do |tag_name|
+        project.tags.create!(name: tag_name)
+      end
     end
+    render json: project, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def update
@@ -72,7 +85,7 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.permit(:name, :description, :status, :deadline)
+    params.permit(:name, :description, :status, :deadline, :start_date)
   end
 
   def serialize_projects(projects)

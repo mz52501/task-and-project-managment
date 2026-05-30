@@ -31,3 +31,13 @@ export interface KanbanTask {
   comment_count?: number;
   tags?: KanbanTaskTag[];
 }
+
+export interface TaskDragData {
+  type: "Task";
+  task: KanbanTask;
+}
+
+export interface ColumnDragData {
+  type: "Column";
+  columnId: Id;
+}

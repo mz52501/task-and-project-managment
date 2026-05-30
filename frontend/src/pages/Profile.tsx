@@ -1,31 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Pencil, Briefcase, CheckCircle2, Clock, Calendar } from "lucide-react";
+import { Briefcase, CheckCircle2, Clock, Calendar, Loader2 } from "lucide-react";
+import { getMe, Me } from "@/api/user";
+import { toast } from "sonner";
+
+const roleStyles: Record<string, string> = {
+  owner: "bg-blue-100 text-blue-800",
+  admin: "bg-blue-100 text-blue-800",
+  developer: "bg-purple-100 text-purple-800",
+  client: "bg-gray-200 text-gray-800",
+};
 
 const Profile = () => {
-  const user = {
-    firstName: "Jane",
-    lastName: "Doe",
-    email: "jane.doe@hyperflow.app",
-    role: "admin",
-    initials: "JD",
-    projectsAssigned: 12,
-    tasksCompleted: 184,
-    hoursLogged: 432,
-    memberSince: "March 12, 2024",
-  };
+  const [user, setUser] = useState<Me | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const roleColor =
-    user.role === "admin"
-      ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
-      : user.role === "developer"
-        ? "bg-purple-100 text-purple-800 hover:bg-purple-100"
-        : "bg-gray-200 text-gray-800 hover:bg-gray-200";
+  useEffect(() => {
+    getMe()
+      .then(setUser)
+      .catch(() => toast.error("Failed to load profile"))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-64px)] bg-gray-50">
+        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const initials = `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
@@ -33,62 +42,46 @@ const Profile = () => {
         {/* Profile Info */}
         <Card className="rounded-xl">
           <CardContent className="p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-5">
-                <Avatar className="w-20 h-20 text-xl">
-                  <AvatarFallback className="bg-blue-100 text-blue-800 text-2xl font-semibold">
-                    {user.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {user.firstName} {user.lastName}
-                  </h1>
-                  <p className="text-gray-500">{user.email}</p>
-                  <Badge className={`mt-2 capitalize ${roleColor}`} variant="secondary">
-                    {user.role}
-                  </Badge>
-                </div>
+            <div className="flex items-center gap-5">
+              <Avatar className="w-20 h-20">
+                <AvatarFallback className="bg-blue-100 text-blue-800 text-2xl font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {user.first_name} {user.last_name}
+                </h1>
+                <p className="text-gray-500 text-sm">{user.email}</p>
+                <Badge className={`mt-1 capitalize ${roleStyles[user.role] ?? "bg-gray-100 text-gray-800"}`} variant="secondary">
+                  {user.role}
+                </Badge>
               </div>
-              <Button variant="outline">
-                <Pencil className="w-4 h-4" /> Edit Profile
-              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Edit Form */}
+        {/* Details */}
         <Card className="rounded-xl">
-          <CardHeader>
-            <CardTitle className="text-lg">Edit Profile</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First name</Label>
-                <Input id="firstName" defaultValue={user.firstName} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last name</Label>
-                <Input id="lastName" defaultValue={user.lastName} />
-              </div>
+          <CardContent className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">First Name</p>
+              <p className="text-sm text-gray-800 mt-1">{user.first_name}</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue={user.email} />
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Last Name</p>
+              <p className="text-sm text-gray-800 mt-1">{user.last_name}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Current password</Label>
-                <Input id="currentPassword" type="password" placeholder="••••••••" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">New password</Label>
-                <Input id="newPassword" type="password" placeholder="••••••••" />
-              </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Email</p>
+              <p className="text-sm text-gray-800 mt-1">{user.email}</p>
             </div>
-            <div className="flex justify-end pt-2">
-              <Button>Save Changes</Button>
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Role</p>
+              <p className="text-sm text-gray-800 mt-1 capitalize">{user.role}</p>
             </div>
           </CardContent>
         </Card>
@@ -102,8 +95,8 @@ const Profile = () => {
                   <Briefcase className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Projects Assigned</p>
-                  <p className="text-2xl font-bold">{user.projectsAssigned}</p>
+                  <p className="text-sm text-gray-500">Projects</p>
+                  <p className="text-2xl font-bold">{user.projects_count}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -112,7 +105,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Tasks Completed</p>
-                  <p className="text-2xl font-bold">{user.tasksCompleted}</p>
+                  <p className="text-2xl font-bold">{user.tasks_completed}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -121,7 +114,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Hours Logged</p>
-                  <p className="text-2xl font-bold">{user.hoursLogged}</p>
+                  <p className="text-2xl font-bold">{user.hours_logged}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -130,7 +123,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Member Since</p>
-                  <p className="text-base font-semibold">{user.memberSince}</p>
+                  <p className="text-base font-semibold">{user.member_since}</p>
                 </div>
               </div>
             </div>

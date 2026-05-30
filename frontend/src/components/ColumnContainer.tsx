@@ -41,7 +41,7 @@ function ColumnContainer({ column, tasks, deleteTask, onAddTask }: Props) {
       <div className="p-2 border-t border-gray-200">
         <Button
           variant="ghost"
-          size="sm"
+          
           className="w-full justify-start text-gray-400 hover:text-gray-600 text-xs"
           onClick={() => onAddTask(column.id)}
         >

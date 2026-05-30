@@ -1,5 +1,5 @@
 import client from "./client";
-import { Project, CreateProjectRequest, ProjectMember, WorkflowStage, Tag } from "@/types";
+import { Project, CreateProjectRequest, WorkflowStage, Tag } from "@/types";
 
 export interface ProjectWithCounts extends Project {
   total_tasks: number;

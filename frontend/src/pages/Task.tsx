@@ -18,6 +18,7 @@ import { TimeTrackingCard } from "@/components/task/TimeTrackingCard";
 import { getTask, updateTask } from "@/api/tasks";
 import { useTaskTimeEntries, minutesToDisplay, parseHoursInput } from "@/hooks/useTimeEntries";
 import { useTimer } from "@/context/TimerContext";
+import { toast } from "sonner";
 
 interface Stage {
   id: string;
@@ -73,19 +74,27 @@ const Task = () => {
 
   function handleStatusChange(val: string) {
     setStageId(val);
-    if (id) updateTask(id, { workflow_stage_id: val }).catch(() => {});
+    if (id)
+      updateTask(id, { workflow_stage_id: val }).catch(() =>
+        toast.error("Failed to update status")
+      );
   }
 
   function handlePriorityChange(val: string) {
     setPriority(val);
     if (id)
-      updateTask(id, { priority: val.toLowerCase() as "low" | "medium" | "high" }).catch(() => {});
+      updateTask(id, { priority: val.toLowerCase() as "low" | "medium" | "high" }).catch(() =>
+        toast.error("Failed to update priority")
+      );
   }
 
   function handleEstimateSave(val: string) {
     setEstimate(val);
     const minutes = parseHoursInput(val);
-    if (id && minutes !== null) updateTask(id, { estimated_minutes: minutes }).catch(() => {});
+    if (id && minutes !== null)
+      updateTask(id, { estimated_minutes: minutes }).catch(() =>
+        toast.error("Failed to save estimate")
+      );
   }
 
   function formatElapsed(seconds: number) {
@@ -137,7 +146,7 @@ const Task = () => {
                     </span>
                     <Button
                       variant="outline"
-                      size="sm"
+                      
                       onClick={() => navigate(`/projects/${task.project_id}`)}
                       className="w-fit text-blue-700 border-blue-200 bg-blue-50 hover:bg-blue-100 hover:text-blue-800"
                     >
