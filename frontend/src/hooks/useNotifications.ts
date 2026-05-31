@@ -49,5 +49,22 @@ export function useNotifications() {
     setUnreadCount(0);
   };
 
-  return { notifications, unreadCount, markAllRead };
+  const markRead = async (id: string) => {
+    await client.patch(`/notifications/${id}/mark_read`);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+    setUnreadCount((c) => Math.max(0, c - 1));
+  };
+
+  const deleteNotification = async (id: string) => {
+    await client.delete(`/notifications/${id}`);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setUnreadCount((prev) => {
+      const wasUnread = notifications.find((n) => n.id === id && !n.read);
+      return wasUnread ? Math.max(0, prev - 1) : prev;
+    });
+  };
+
+  return { notifications, unreadCount, markAllRead, markRead, deleteNotification };
 }

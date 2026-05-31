@@ -1,12 +1,13 @@
 class ProjectsController < ApplicationController
-  before_action :set_project, only: [ :show, :update, :destroy ]
+  before_action :set_workspace
+  before_action :set_project, only: [:show, :update, :destroy]
 
   def index
-    owned = Project.joins(:project_members)
-                   .where(project_members: { user_id: @current_user.id, role: "owner" })
-    member = Project.joins(:project_members)
-                    .where(project_members: { user_id: @current_user.id })
-                    .where.not(project_members: { role: "owner" })
+    owned = @workspace.projects.joins(:project_members)
+                      .where(project_members: { user_id: current_user.id, role: "owner" })
+    member = @workspace.projects.joins(:project_members)
+                       .where(project_members: { user_id: current_user.id })
+                       .where.not(project_members: { role: "owner" })
     render json: {
       owned: serialize_projects(owned),
       member: serialize_projects(member)
@@ -43,16 +44,16 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    project = Project.new(project_params)
+    project = @workspace.projects.new(project_params)
     ActiveRecord::Base.transaction do
       project.save!
-      project.project_members.create!(user: @current_user, role: "owner")
+      project.project_members.create!(user: current_user, role: "owner")
 
       Array(params[:members]).each do |m|
         user_id = m[:user_id] || m["user_id"]
         role = m[:role] || m["role"] || "developer"
-        next if user_id.blank? || user_id.to_s == @current_user.id.to_s
-        user = User.find_by(id: user_id)
+        next if user_id.blank? || user_id.to_s == current_user.id.to_s
+        user = @workspace.members.find_by(id: user_id)
         project.project_members.create!(user: user, role: role) if user
       end
 
@@ -81,7 +82,7 @@ class ProjectsController < ApplicationController
   private
 
   def set_project
-    @project = Project.find(params[:id])
+    @project = @workspace.projects.find(params[:id])
   end
 
   def project_params

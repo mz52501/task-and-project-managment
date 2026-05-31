@@ -6,15 +6,18 @@ import ProjectSnapshots from "../components/dashboard/ProjectSnapshots";
 import TimeTrackingWidget from "../components/dashboard/TimeTrackingWidget";
 import WeeklyTimeChart from "../components/dashboard/WeeklyTimeChart";
 import { getDashboard, DashboardData } from "@/api/dashboard";
+import { useWorkspace } from "@/context/WorkspaceContext";
 
 const Dashboard = () => {
+  const { currentWorkspace } = useWorkspace();
   const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
-    getDashboard()
+    if (!currentWorkspace) return;
+    getDashboard(currentWorkspace.id)
       .then(setData)
       .catch(() => {});
-  }, []);
+  }, [currentWorkspace?.id]);
 
   return (
     <div className="flex-grow bg-gray-50 overflow-auto">

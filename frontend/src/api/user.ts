@@ -6,6 +6,7 @@ export interface Me {
   last_name: string;
   email: string;
   role: string;
+  current_workspace_id: string | null;
   member_since: string;
   projects_count: number;
   tasks_completed: number;
@@ -20,8 +21,8 @@ export interface UserSummary {
   role: string;
 }
 
-export const getUsers = async (): Promise<UserSummary[]> => {
-  const res = await client.get<UserSummary[]>("/users");
+export const getUsers = async (workspaceId: string): Promise<UserSummary[]> => {
+  const res = await client.get<UserSummary[]>(`/workspaces/${workspaceId}/users`);
   return res.data;
 };
 
@@ -30,7 +31,7 @@ export const getMe = async (): Promise<Me> => {
   return res.data;
 };
 
-export const updateMe = async (data: Partial<Pick<Me, "first_name" | "last_name" | "email">>): Promise<Me> => {
+export const updateMe = async (data: Partial<Pick<Me, "first_name" | "last_name" | "email" | "current_workspace_id">>): Promise<Me> => {
   const res = await client.patch<Me>("/me", data);
   return res.data;
 };

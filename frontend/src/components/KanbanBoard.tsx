@@ -14,8 +14,9 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
-import { getProjectTasks, updateTask, deleteTask as deleteTaskApi, KanbanTaskFromApi } from "@/api/tasks";
+import { getProjectTasks, createTask, updateTask, deleteTask as deleteTaskApi, KanbanTaskFromApi } from "@/api/tasks";
 import { WorkflowStage } from "@/types";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { Loader2 } from "lucide-react";
 
 interface Props {
@@ -48,6 +49,7 @@ function getTaskFromDragData(data: Record<string, unknown> | undefined): KanbanT
 }
 
 function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: Props) {
+  const { currentWorkspace } = useWorkspace();
   const columns = React.useMemo(
     () => stages.map((s) => ({ id: s.id, title: s.name, position: s.position })),
     [stages]
@@ -58,9 +60,9 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
   const dragStartColumnRef = React.useRef<Id | null>(null);
 
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || !currentWorkspace) return;
     let cancelled = false;
-    getProjectTasks(projectId)
+    getProjectTasks(currentWorkspace.id, projectId)
       .then((data) => {
         if (!cancelled) setTasks(data.map(apiTaskToKanban));
       })
@@ -99,8 +101,8 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
 
     if (!newColumnId) return;
 
-    if (dragStartColumnRef.current !== newColumnId) {
-      updateTask(taskId, { workflow_stage_id: String(newColumnId) }).catch(() => {});
+    if (dragStartColumnRef.current !== newColumnId && currentWorkspace) {
+      updateTask(currentWorkspace.id, taskId, { workflow_stage_id: String(newColumnId) }).catch(() => {});
     }
     dragStartColumnRef.current = null;
 
@@ -144,11 +146,28 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
 
   function deleteTask(id: Id) {
     setTasks((prev) => prev.filter((t) => t.id !== id));
-    deleteTaskApi(String(id)).catch(() => {});
+    if (currentWorkspace) deleteTaskApi(currentWorkspace.id, String(id)).catch(() => {});
   }
 
-  function onAddTask(_columnId: Id) {
-    // TODO: open create task modal
+  async function onAddTask(columnId: Id, title: string) {
+    if (!currentWorkspace || !projectId) return;
+    const created = await createTask(currentWorkspace.id, {
+      title,
+      project_id: projectId,
+      workflow_stage_id: String(columnId),
+      priority: "medium",
+    });
+    setTasks((prev) => [
+      ...prev,
+      {
+        id: created.id,
+        columnId,
+        title: created.title,
+        priority: created.priority as KanbanTask["priority"],
+        assignees: [],
+        tags: [],
+      },
+    ]);
   }
 
   if (loading) {

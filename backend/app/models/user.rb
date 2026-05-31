@@ -5,6 +5,10 @@ class User < ApplicationRecord
 
   enum :role, { admin: "admin", developer: "developer", client: "client" }, default: "developer"
 
+  has_many :workspace_members, dependent: :destroy
+  has_many :workspaces, through: :workspace_members
+  belongs_to :current_workspace, class_name: "Workspace", optional: true
+
   has_many :project_members, dependent: :destroy
   has_many :projects, through: :project_members
   has_many :created_tasks, class_name: "Task", foreign_key: :created_by_id, dependent: :nullify

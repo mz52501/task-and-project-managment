@@ -47,7 +47,8 @@ class AuthController < ApplicationController
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
-      role: user.role
+      role: user.role,
+      current_workspace_id: user.current_workspace_id
     }
   end
 end

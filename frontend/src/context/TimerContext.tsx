@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { getTimerStatus, startTimer, stopTimer } from "@/api/timer";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { toast } from "sonner";
 
 interface TimerContextValue {
@@ -14,6 +15,7 @@ interface TimerContextValue {
 const TimerContext = createContext<TimerContextValue | null>(null);
 
 export function TimerProvider({ children }: { children: React.ReactNode }) {
+  const { currentWorkspace } = useWorkspace();
   const [isRunning, setIsRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -32,9 +34,9 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) return;
+    if (!localStorage.getItem("token") || !currentWorkspace) return;
 
-    getTimerStatus()
+    getTimerStatus(currentWorkspace.id)
       .then((status) => {
         if (status.running && status.started_at) {
           setIsRunning(true);
@@ -48,10 +50,11 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [currentWorkspace?.id]);
 
   async function start(tid: string, title: string) {
-    const status = await startTimer(tid).catch(() => {
+    if (!currentWorkspace) return;
+    const status = await startTimer(currentWorkspace.id, tid).catch(() => {
       toast.error("Failed to start timer");
       return null;
     });
@@ -63,7 +66,8 @@ export function TimerProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function stop() {
-    const result = await stopTimer().catch(() => {
+    if (!currentWorkspace) return;
+    const result = await stopTimer(currentWorkspace.id).catch(() => {
       toast.error("Failed to stop timer");
       return null;
     });

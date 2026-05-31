@@ -50,12 +50,12 @@ export interface DashboardData {
   weekly_time: WeeklyTimeDay[];
 }
 
-export const getDashboard = async (): Promise<DashboardData> => {
-  const res = await client.get<DashboardData>("/dashboard");
+export const getDashboard = async (workspaceId: string): Promise<DashboardData> => {
+  const res = await client.get<DashboardData>(`/workspaces/${workspaceId}/dashboard`);
   return res.data;
 };
 
-export const getActivityLogs = async (): Promise<ActivityLogEntry[]> => {
-  const res = await client.get<ActivityLogEntry[]>("/activity_logs");
+export const getActivityLogs = async (workspaceId: string): Promise<ActivityLogEntry[]> => {
+  const res = await client.get<ActivityLogEntry[]>(`/workspaces/${workspaceId}/activity_logs`);
   return res.data;
 };

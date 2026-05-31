@@ -43,20 +43,14 @@ function inferType(message: string): NotificationType {
 }
 
 const Notifications = () => {
-  const { notifications, unreadCount, markAllRead } = useNotificationsContext();
+  const { notifications, unreadCount, markAllRead, markRead, deleteNotification } = useNotificationsContext();
   const [activeFilter, setActiveFilter] = useState<"all" | "unread" | "read">("all");
-  const [deleted, setDeleted] = useState<Set<string>>(new Set());
 
-  const visible = notifications.filter((n) => !deleted.has(n.id));
-  const filtered = visible.filter((n) => {
+  const filtered = notifications.filter((n) => {
     if (activeFilter === "unread") return !n.read;
     if (activeFilter === "read") return n.read;
     return true;
   });
-
-  const deleteNotification = (id: string) => {
-    setDeleted((prev) => new Set(prev).add(id));
-  };
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 py-8 px-4">
@@ -87,7 +81,7 @@ const Notifications = () => {
             <TabsTrigger value="all" className="flex items-center gap-2 px-4 text-sm">
               All
               <span className="text-xs bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 leading-none">
-                {visible.length}
+                {notifications.length}
               </span>
             </TabsTrigger>
             <TabsTrigger value="unread" className="flex items-center gap-2 px-4 text-sm">
@@ -167,7 +161,7 @@ const Notifications = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-gray-500 hover:text-blue-600"
-                            onClick={markAllRead}
+                            onClick={() => markRead(n.id)}
                             title="Mark as read"
                           >
                             <Check className="w-4 h-4" />

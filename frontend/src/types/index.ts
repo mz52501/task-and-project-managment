@@ -7,3 +7,4 @@ export * from "./mention";
 export * from "./attachment";
 export * from "./api";
 export * from "./kanban";
+export * from "./workspace";

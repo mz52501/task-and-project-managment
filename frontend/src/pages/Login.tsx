@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { login } from "@/api/auth";
 import { useAuth } from "@/hooks/useAuth";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { Button } from "@/components/ui/button";
 
 export default function Login() {
@@ -11,6 +12,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { saveAuth } = useAuth();
+  const { refreshWorkspaces } = useWorkspace();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,6 +27,7 @@ export default function Login() {
     try {
       const data = await login({ email: formData.email, password: formData.password });
       saveAuth(data.token, data.user);
+      await refreshWorkspaces();
       navigate("/");
     } catch {
       setError("Invalid email or password.");

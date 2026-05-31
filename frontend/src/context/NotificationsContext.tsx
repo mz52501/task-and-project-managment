@@ -5,12 +5,16 @@ interface NotificationsContextValue {
   notifications: AppNotification[];
   unreadCount: number;
   markAllRead: () => Promise<void>;
+  markRead: (id: string) => Promise<void>;
+  deleteNotification: (id: string) => Promise<void>;
 }
 
 const NotificationsContext = createContext<NotificationsContextValue>({
   notifications: [],
   unreadCount: 0,
   markAllRead: async () => {},
+  markRead: async () => {},
+  deleteNotification: async () => {},
 });
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {

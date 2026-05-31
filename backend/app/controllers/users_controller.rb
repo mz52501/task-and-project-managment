@@ -1,8 +1,10 @@
 class UsersController < ApplicationController
   wrap_parameters false
 
+  before_action :set_workspace, only: [:index]
+
   def index
-    users = User.select(:id, :first_name, :last_name, :email, :role)
+    users = @workspace.members.select(:id, :first_name, :last_name, :email, :role)
     render json: users
   end
 
@@ -26,7 +28,7 @@ class UsersController < ApplicationController
   private
 
   def me_params
-    params.permit(:first_name, :last_name, :email)
+    params.permit(:first_name, :last_name, :email, :current_workspace_id)
   end
 
   def me_payload(user)
@@ -43,6 +45,7 @@ class UsersController < ApplicationController
       last_name: user.last_name,
       email: user.email,
       role: user.role,
+      current_workspace_id: user.current_workspace_id,
       member_since: user.created_at.strftime("%B %d, %Y"),
       projects_count: projects_count,
       tasks_completed: tasks_completed,

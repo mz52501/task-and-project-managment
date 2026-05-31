@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CheckCircle, MessageSquare, Clock, User, Folder } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getActivityLogs, ActivityLogEntry } from "@/api/dashboard";
+import { useWorkspace } from "@/context/WorkspaceContext";
 
 const iconMap: Record<string, React.ElementType> = {
   created: CheckCircle,
@@ -30,15 +31,17 @@ function relativeTime(dateStr: string): string {
 }
 
 const RecentActivity = () => {
+  const { currentWorkspace } = useWorkspace();
   const [activities, setActivities] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getActivityLogs()
+    if (!currentWorkspace) return;
+    getActivityLogs(currentWorkspace.id)
       .then(setActivities)
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentWorkspace?.id]);
 
   return (
     <Card>

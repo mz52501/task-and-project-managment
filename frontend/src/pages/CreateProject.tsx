@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, X, Calendar, Users, Tag, FolderPlus } from "lucide-react";
 import { createProject } from "@/api/projects";
 import { getUsers, UserSummary } from "@/api/user";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { tagColor, STATUS_OPTIONS } from "@/constants/project";
 import { toast } from "sonner";
 import { ProjectStatus, MemberRole } from "@/types";
@@ -28,6 +29,7 @@ interface SelectedMember {
 
 const CreateProject = () => {
   const navigate = useNavigate();
+  const { currentWorkspace } = useWorkspace();
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -41,8 +43,9 @@ const CreateProject = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    getUsers().then(setUsers).catch(() => {});
-  }, []);
+    if (!currentWorkspace) return;
+    getUsers(currentWorkspace.id).then(setUsers).catch(() => {});
+  }, [currentWorkspace?.id]);
 
   function toggleMember(id: string) {
     setSelectedMembers((prev) =>
@@ -68,9 +71,9 @@ const CreateProject = () => {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !currentWorkspace) return;
     setSubmitting(true);
-    const result = await createProject({
+    const result = await createProject(currentWorkspace.id, {
       name: name.trim(),
       description: description.trim() || undefined,
       status,

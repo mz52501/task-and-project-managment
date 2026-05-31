@@ -13,4 +13,14 @@ class NotificationsController < ApplicationController
       render json: { error: "Forbidden" }, status: :forbidden
     end
   end
+
+  def destroy
+    notification = Notification.find(params[:id])
+    if notification.user_id == @current_user.id
+      notification.destroy
+      head :no_content
+    else
+      render json: { error: "Forbidden" }, status: :forbidden
+    end
+  end
 end

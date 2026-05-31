@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Calendar, User, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getProjects } from "@/api/projects";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { Project } from "@/types";
 
 const statusColors: Record<string, string> = {
@@ -27,19 +28,21 @@ interface ProjectWithCounts extends Project {
 
 const Projects = () => {
   const navigate = useNavigate();
+  const { currentWorkspace } = useWorkspace();
   const [owned, setOwned] = useState<ProjectWithCounts[]>([]);
   const [member, setMember] = useState<ProjectWithCounts[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getProjects()
+    if (!currentWorkspace) return;
+    getProjects(currentWorkspace.id)
       .then((data) => {
         setOwned(data.owned as ProjectWithCounts[]);
         setMember(data.member as ProjectWithCounts[]);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentWorkspace?.id]);
 
   const all = [...owned, ...member];
 

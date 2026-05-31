@@ -7,13 +7,13 @@ export interface TimerStatus {
   task_title?: string;
 }
 
-export const getTimerStatus = async (): Promise<TimerStatus> => {
-  const res = await client.get<TimerStatus>("/timer/status");
+export const getTimerStatus = async (workspaceId: string): Promise<TimerStatus> => {
+  const res = await client.get<TimerStatus>(`/workspaces/${workspaceId}/timer/status`);
   return res.data;
 };
 
-export const startTimer = async (taskId: string): Promise<TimerStatus> => {
-  const res = await client.post<TimerStatus>("/timer/start", { task_id: taskId });
+export const startTimer = async (workspaceId: string, taskId: string): Promise<TimerStatus> => {
+  const res = await client.post<TimerStatus>(`/workspaces/${workspaceId}/timer/start`, { task_id: taskId });
   return res.data;
 };
 
@@ -22,7 +22,7 @@ export interface StopTimerResponse {
   time_entry: object | null;
 }
 
-export const stopTimer = async (): Promise<StopTimerResponse> => {
-  const res = await client.post<StopTimerResponse>("/timer/stop");
+export const stopTimer = async (workspaceId: string): Promise<StopTimerResponse> => {
+  const res = await client.post<StopTimerResponse>(`/workspaces/${workspaceId}/timer/stop`);
   return res.data;
 };

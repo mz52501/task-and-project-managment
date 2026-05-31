@@ -7,6 +7,7 @@ export interface User {
   last_name: string;
   role: UserRole;
   avatar?: string;
+  current_workspace_id?: string | null;
 }
 
 export interface LoginRequest {

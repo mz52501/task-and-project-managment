@@ -15,7 +15,6 @@ export interface KanbanTaskAssignee {
 export interface KanbanTaskTag {
   id: string;
   name: string;
-  color: string;
 }
 
 export interface KanbanTask {

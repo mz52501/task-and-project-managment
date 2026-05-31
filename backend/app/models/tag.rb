@@ -4,5 +4,4 @@ class Tag < ApplicationRecord
   has_many :tasks, through: :task_tags
 
   validates :name, presence: true, uniqueness: { scope: :project_id }
-  validates :color, presence: true
 end

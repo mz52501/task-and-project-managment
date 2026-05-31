@@ -3,6 +3,8 @@ class Project < ApplicationRecord
 
   include Discard::Model
 
+  belongs_to :workspace
+
   has_many :project_members, dependent: :destroy
   has_many :users, through: :project_members
   has_many :tasks, dependent: :destroy

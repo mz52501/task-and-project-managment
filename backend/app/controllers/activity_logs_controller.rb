@@ -1,6 +1,9 @@
 class ActivityLogsController < ApplicationController
+  before_action :set_workspace
+
   def index
-    user_project_ids = ProjectMember.where(user_id: @current_user.id).pluck(:project_id)
+    workspace_project_ids = @workspace.projects.pluck(:id)
+    user_project_ids = ProjectMember.where(user_id: current_user.id, project_id: workspace_project_ids).pluck(:project_id)
     user_task_ids = Task.where(project_id: user_project_ids, deleted_at: nil).pluck(:id)
 
     logs = ActivityLog

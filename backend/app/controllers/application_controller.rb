@@ -17,4 +17,15 @@ class ApplicationController < ActionController::API
   def current_user
     @current_user
   end
+
+  def set_workspace
+    @workspace = Workspace.find(params[:workspace_id])
+    wm = WorkspaceMember.find_by(workspace_id: @workspace.id, user_id: current_user.id)
+    render json: { error: "Forbidden" }, status: :forbidden unless wm
+  end
+
+  def require_workspace_admin!
+    wm = WorkspaceMember.find_by(workspace_id: @workspace.id, user_id: current_user.id)
+    render json: { error: "Forbidden" }, status: :forbidden unless wm&.admin?
+  end
 end

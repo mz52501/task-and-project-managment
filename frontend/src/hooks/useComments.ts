@@ -1,25 +1,27 @@
 import { useEffect, useState } from "react";
 import { getComments, createComment, updateComment, deleteCommentById } from "@/api/tasks";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { Comment } from "@/types";
 import { toast } from "sonner";
 
 export function useComments(taskId: string) {
+  const { currentWorkspace } = useWorkspace();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [editingComment, setEditingComment] = useState<string | null>(null);
   const [editCommentContent, setEditCommentContent] = useState("");
 
   useEffect(() => {
-    if (!taskId) return;
-    getComments(taskId)
+    if (!taskId || !currentWorkspace) return;
+    getComments(currentWorkspace.id, taskId)
       .then(setComments)
       .catch(() => toast.error("Failed to load comments"));
-  }, [taskId]);
+  }, [taskId, currentWorkspace?.id]);
 
   async function postComment() {
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !currentWorkspace) return;
     try {
-      const created = await createComment(taskId, newComment.trim());
+      const created = await createComment(currentWorkspace.id, taskId, newComment.trim());
       setComments((prev) => [...prev, created]);
       setNewComment("");
     } catch {

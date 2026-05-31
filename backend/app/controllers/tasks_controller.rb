@@ -1,8 +1,11 @@
 class TasksController < ApplicationController
   wrap_parameters false
-  before_action :set_task, only: [ :show, :update, :destroy ]
+  before_action :set_workspace
+  before_action :set_task, only: [:show, :update, :destroy]
 
   def index
+    workspace_project_ids = @workspace.projects.pluck(:id)
+
     if params[:parent_task_id]
       tasks = Task.where(parent_task_id: params[:parent_task_id])
                   .includes(:workflow_stage, :assignees, :tags, :child_tasks, :time_entries)
@@ -12,11 +15,29 @@ class TasksController < ApplicationController
                   .includes(:workflow_stage, :assignees, :tags, :child_tasks, :time_entries)
       render json: tasks.map { |t| serialize_task(t) }
     else
-      assigned_task_ids = TaskAssignment.where(user_id: @current_user.id).pluck(:task_id)
-      scope = Task.joins(:workflow_stage).where.not(workflow_stages: { name: "Done" })
-      assigned = scope.where(id: assigned_task_ids)
-      created = scope.where(created_by_id: @current_user.id)
-      render json: { assigned: assigned, created: created }
+      assigned_task_ids = TaskAssignment.where(user_id: current_user.id).pluck(:task_id)
+      tasks = Task.includes(:workflow_stage, :project, :tags)
+                  .where(project_id: workspace_project_ids, id: assigned_task_ids)
+                  .order("due_date ASC NULLS LAST, created_at DESC")
+
+      grouped = tasks.group_by { |t| t.project }
+      result = grouped.map do |project, project_tasks|
+        {
+          project_id:   project.id,
+          project_name: project.name,
+          tasks: project_tasks.map { |t|
+            {
+              id:          t.id,
+              title:       t.title,
+              priority:    t.priority,
+              due_date:    t.due_date,
+              stage_name:  t.workflow_stage&.name,
+              tags:        t.tags.map { |tag| { id: tag.id, name: tag.name } }
+            }
+          }
+        }
+      end
+      render json: result
     end
   end
 
@@ -34,7 +55,7 @@ class TasksController < ApplicationController
 
   def create
     task = Task.new(task_params)
-    task.created_by = @current_user
+    task.created_by = current_user
 
     if task.save
       render json: task, status: :created

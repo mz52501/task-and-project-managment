@@ -11,6 +11,8 @@ interface EnrichedComment {
   user_id: string;
   content: string;
   created_at: string;
+  updated_at: string;
+  task_id: string;
   author_name?: string;
   author_initials?: string;
 }

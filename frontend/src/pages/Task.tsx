@@ -16,6 +16,7 @@ import { CommentsCard } from "@/components/task/CommentsCard";
 import { EstimateCard } from "@/components/task/EstimateCard";
 import { TimeTrackingCard } from "@/components/task/TimeTrackingCard";
 import { getTask, updateTask } from "@/api/tasks";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { useTaskTimeEntries, minutesToDisplay, parseHoursInput } from "@/hooks/useTimeEntries";
 import { useTimer } from "@/context/TimerContext";
 import { toast } from "sonner";
@@ -46,6 +47,7 @@ interface FullTask {
 const Task = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { currentWorkspace } = useWorkspace();
   const { isRunning, taskId: runningTaskId, elapsed, start, stop } = useTimer();
 
   const [task, setTask] = useState<FullTask | null>(null);
@@ -59,8 +61,8 @@ const Task = () => {
   const isThisTaskRunning = isRunning && runningTaskId === id;
 
   useEffect(() => {
-    if (!id) return;
-    getTask(id)
+    if (!id || !currentWorkspace) return;
+    getTask(currentWorkspace.id, id)
       .then((data) => {
         const t = data as unknown as FullTask;
         setTask(t);
@@ -70,20 +72,20 @@ const Task = () => {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, currentWorkspace?.id]);
 
   function handleStatusChange(val: string) {
     setStageId(val);
-    if (id)
-      updateTask(id, { workflow_stage_id: val }).catch(() =>
+    if (id && currentWorkspace)
+      updateTask(currentWorkspace.id, id, { workflow_stage_id: val }).catch(() =>
         toast.error("Failed to update status")
       );
   }
 
   function handlePriorityChange(val: string) {
     setPriority(val);
-    if (id)
-      updateTask(id, { priority: val.toLowerCase() as "low" | "medium" | "high" }).catch(() =>
+    if (id && currentWorkspace)
+      updateTask(currentWorkspace.id, id, { priority: val.toLowerCase() as "low" | "medium" | "high" }).catch(() =>
         toast.error("Failed to update priority")
       );
   }
@@ -91,8 +93,8 @@ const Task = () => {
   function handleEstimateSave(val: string) {
     setEstimate(val);
     const minutes = parseHoursInput(val);
-    if (id && minutes !== null)
-      updateTask(id, { estimated_minutes: minutes }).catch(() =>
+    if (id && minutes !== null && currentWorkspace)
+      updateTask(currentWorkspace.id, id, { estimated_minutes: minutes }).catch(() =>
         toast.error("Failed to save estimate")
       );
   }

@@ -5,6 +5,7 @@ import { getTimeEntries } from "@/api/tasks";
 import { getTasks } from "@/api/tasks";
 import { TimeEntry, Task } from "@/types";
 import { useTimer } from "@/context/TimerContext";
+import { useWorkspace } from "@/context/WorkspaceContext";
 
 function formatMinutes(minutes: number): string {
   const h = Math.floor(minutes / 60);
@@ -22,6 +23,7 @@ function formatElapsed(seconds: number): string {
 
 const TimeTrackingWidget = () => {
   const { isRunning, elapsed, taskTitle, start, stop } = useTimer();
+  const { currentWorkspace } = useWorkspace();
   const [entries, setEntries] = useState<TimeEntry[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showPicker, setShowPicker] = useState(false);
@@ -40,7 +42,8 @@ const TimeTrackingWidget = () => {
   }, [showPicker]);
 
   useEffect(() => {
-    Promise.all([getTimeEntries(), getTasks()])
+    if (!currentWorkspace) return;
+    Promise.all([getTimeEntries(), getTasks(currentWorkspace.id)])
       .then(([e, t]) => {
         setEntries(e);
         setTasks(

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_30_103342) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_31_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -130,7 +130,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_103342) do
     t.date "start_date"
     t.string "status", default: "active", null: false
     t.datetime "updated_at", null: false
+    t.uuid "workspace_id", null: false
     t.index ["deleted_at"], name: "index_projects_on_deleted_at"
+    t.index ["workspace_id"], name: "index_projects_on_workspace_id"
   end
 
   create_table "tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -197,6 +199,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_103342) do
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "avatar"
     t.datetime "created_at", null: false
+    t.uuid "current_workspace_id"
     t.datetime "deleted_at"
     t.string "email", null: false
     t.string "first_name", null: false
@@ -217,6 +220,52 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_103342) do
     t.index ["project_id"], name: "index_workflow_stages_on_project_id"
   end
 
+  create_table "workspace_invite_projects", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "workspace_invite_id", null: false
+    t.index ["project_id"], name: "index_workspace_invite_projects_on_project_id"
+    t.index ["workspace_invite_id", "project_id"], name: "index_invite_projects_on_invite_and_project", unique: true
+    t.index ["workspace_invite_id"], name: "index_workspace_invite_projects_on_workspace_invite_id"
+  end
+
+  create_table "workspace_invites", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "accepted_at"
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.datetime "expires_at", null: false
+    t.uuid "invited_by_id", null: false
+    t.string "role", default: "member", null: false
+    t.string "status", default: "pending", null: false
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "workspace_id", null: false
+    t.index ["invited_by_id"], name: "index_workspace_invites_on_invited_by_id"
+    t.index ["token"], name: "index_workspace_invites_on_token", unique: true
+    t.index ["workspace_id", "email"], name: "index_workspace_invites_on_workspace_id_and_email"
+    t.index ["workspace_id"], name: "index_workspace_invites_on_workspace_id"
+  end
+
+  create_table "workspace_members", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.uuid "workspace_id", null: false
+    t.index ["user_id"], name: "index_workspace_members_on_user_id"
+    t.index ["workspace_id", "user_id"], name: "index_workspace_members_on_workspace_id_and_user_id", unique: true
+    t.index ["workspace_id"], name: "index_workspace_members_on_workspace_id"
+  end
+
+  create_table "workspaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "description"
+    t.string "logo_url"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "active_timers", "tasks"
   add_foreign_key "active_timers", "users"
   add_foreign_key "activity_logs", "users", column: "actor_id"
@@ -231,6 +280,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_103342) do
   add_foreign_key "notifications", "users"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
+  add_foreign_key "projects", "workspaces"
   add_foreign_key "tags", "projects"
   add_foreign_key "task_assignments", "tasks"
   add_foreign_key "task_assignments", "users"
@@ -242,5 +292,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_30_103342) do
   add_foreign_key "tasks", "workflow_stages"
   add_foreign_key "time_entries", "tasks"
   add_foreign_key "time_entries", "users"
+  add_foreign_key "users", "workspaces", column: "current_workspace_id"
   add_foreign_key "workflow_stages", "projects"
+  add_foreign_key "workspace_invite_projects", "projects"
+  add_foreign_key "workspace_invite_projects", "workspace_invites"
+  add_foreign_key "workspace_invites", "users", column: "invited_by_id"
+  add_foreign_key "workspace_invites", "workspaces"
+  add_foreign_key "workspace_members", "users"
+  add_foreign_key "workspace_members", "workspaces"
 end

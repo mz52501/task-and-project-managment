@@ -1,35 +1,37 @@
 import { useEffect, useState } from "react";
 import { getChildTasks, createChildTask } from "@/api/tasks";
 import { getProject } from "@/api/projects";
+import { useWorkspace } from "@/context/WorkspaceContext";
 import { Task } from "@/types";
 import { toast } from "sonner";
 
 export function useSubtasks(taskId: string, projectId: string, defaultStageId: string) {
+  const { currentWorkspace } = useWorkspace();
   const [subtasks, setSubtasks] = useState<Task[]>([]);
   const [newSubtask, setNewSubtask] = useState("");
   const [todoStageId, setTodoStageId] = useState(defaultStageId);
 
   useEffect(() => {
-    if (!taskId) return;
-    getChildTasks(taskId)
+    if (!taskId || !currentWorkspace) return;
+    getChildTasks(currentWorkspace.id, taskId)
       .then(setSubtasks)
       .catch(() => toast.error("Failed to load subtasks"));
-  }, [taskId]);
+  }, [taskId, currentWorkspace?.id]);
 
   useEffect(() => {
-    if (!projectId) return;
-    getProject(projectId)
+    if (!projectId || !currentWorkspace) return;
+    getProject(currentWorkspace.id, projectId)
       .then((p) => {
         const todo = p.stages.find((s) => s.name === "To Do");
         if (todo) setTodoStageId(todo.id);
       })
       .catch(() => {});
-  }, [projectId]);
+  }, [projectId, currentWorkspace?.id]);
 
   async function addSubtask() {
-    if (!newSubtask.trim() || !projectId || !todoStageId) return;
+    if (!newSubtask.trim() || !projectId || !todoStageId || !currentWorkspace) return;
     try {
-      const created = await createChildTask({
+      const created = await createChildTask(currentWorkspace.id, {
         title: newSubtask.trim(),
         project_id: projectId,
         workflow_stage_id: todoStageId,

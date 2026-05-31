@@ -1,6 +1,9 @@
 class DashboardController < ApplicationController
+  before_action :set_workspace
+
   def index
-    user_project_ids = ProjectMember.where(user_id: @current_user.id).pluck(:project_id)
+    workspace_project_ids = @workspace.projects.pluck(:id)
+    user_project_ids = ProjectMember.where(user_id: current_user.id, project_id: workspace_project_ids).pluck(:project_id)
     assigned_task_ids = TaskAssignment.where(user_id: @current_user.id).pluck(:task_id)
 
     last_stage_ids = WorkflowStage
@@ -103,7 +106,7 @@ class DashboardController < ApplicationController
     week_end = week_start + 6
 
     entries = TimeEntry
-      .where(user_id: @current_user.id)
+      .where(user_id: current_user.id)
       .where(work_date: week_start..week_end)
       .group(:work_date)
       .sum(:duration_minutes)
