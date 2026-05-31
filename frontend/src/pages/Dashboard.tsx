@@ -1,23 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import QuickStats from "../components/dashboard/QuickStats";
 import RecentActivity from "../components/dashboard/RecentActivity";
 import TodaysFocus from "../components/dashboard/TodaysFocus";
 import ProjectSnapshots from "../components/dashboard/ProjectSnapshots";
 import TimeTrackingWidget from "../components/dashboard/TimeTrackingWidget";
 import WeeklyTimeChart from "../components/dashboard/WeeklyTimeChart";
-import { getDashboard, DashboardData } from "@/api/dashboard";
-import { useWorkspace } from "@/context/WorkspaceContext";
+import { useDashboard } from "@/hooks/queries/useDashboard";
 
 const Dashboard = () => {
-  const { currentWorkspace } = useWorkspace();
-  const [data, setData] = useState<DashboardData | null>(null);
-
-  useEffect(() => {
-    if (!currentWorkspace) return;
-    getDashboard(currentWorkspace.id)
-      .then(setData)
-      .catch(() => {});
-  }, [currentWorkspace?.id]);
+  const { data } = useDashboard();
 
   return (
     <div className="flex-grow bg-gray-50 overflow-auto">

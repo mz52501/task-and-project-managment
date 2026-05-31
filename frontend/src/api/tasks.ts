@@ -31,6 +31,7 @@ export interface MyTasksGroup {
     priority: string;
     due_date: string | null;
     stage_name: string | null;
+    stage_position: number | null;
     tags: { id: string; name: string }[];
   }[];
 }

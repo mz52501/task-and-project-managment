@@ -3,55 +3,8 @@ import { Bell, Zap } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AppSidebar } from "./AppSidebar";
-import { useNotificationsContext, AppNotification } from "@/context/NotificationsContext";
-import { CheckCircle2, MessageSquare, UserPlus, Clock, AlertCircle } from "lucide-react";
-import React from "react";
-
-const iconMap: Record<string, React.ElementType> = {
-  comment: MessageSquare,
-  assignment: UserPlus,
-  deadline: Clock,
-  mention: AlertCircle,
-  task: CheckCircle2,
-};
-
-const colorMap: Record<string, string> = {
-  comment: "bg-blue-100 text-blue-700",
-  assignment: "bg-purple-100 text-purple-700",
-  deadline: "bg-orange-100 text-orange-700",
-  mention: "bg-red-100 text-red-700",
-  task: "bg-green-100 text-green-700",
-};
-
-function inferType(message: string): string {
-  if (message.includes("comment")) return "comment";
-  if (message.includes("assigned") || message.includes("added")) return "assignment";
-  if (message.includes("due") || message.includes("deadline")) return "deadline";
-  if (message.includes("mentioned")) return "mention";
-  return "task";
-}
-
-function NotificationRow({ n }: { n: AppNotification }) {
-  const type = inferType(n.message);
-  const Icon = iconMap[type];
-  const colorClass = colorMap[type];
-  return (
-    <div
-      className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${!n.read ? "bg-blue-50/40" : ""}`}
-    >
-      <div
-        className={`w-8 h-8 rounded-full flex-none flex items-center justify-center ${colorClass}`}
-      >
-        <Icon className="w-4 h-4" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-800 leading-snug line-clamp-2">{n.message}</p>
-        <p className="text-xs text-gray-400 mt-0.5">{new Date(n.created_at).toLocaleString()}</p>
-      </div>
-      {!n.read && <span className="w-2 h-2 rounded-full bg-blue-600 flex-none mt-1.5" />}
-    </div>
-  );
-}
+import { useNotificationsContext } from "@/context/NotificationsContext";
+import { NotificationItem } from "@/components/notifications/NotificationItem";
 
 export default function AppLayout() {
   const { unreadCount, notifications, markAllRead } = useNotificationsContext();
@@ -102,7 +55,7 @@ export default function AppLayout() {
                     {notifications.length === 0 ? (
                       <p className="text-sm text-gray-400 text-center py-8">No notifications</p>
                     ) : (
-                      notifications.slice(0, 5).map((n) => <NotificationRow key={n.id} n={n} />)
+                      notifications.slice(0, 5).map((n) => <NotificationItem key={n.id} notification={n} variant="row" />)
                     )}
                   </div>
                   <Link

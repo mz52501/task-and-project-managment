@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Briefcase, CheckCircle2, Clock, Calendar, Loader2 } from "lucide-react";
-import { getMe, Me } from "@/api/user";
-import { toast } from "sonner";
+import { useMe } from "@/hooks/queries/useMe";
 
 const roleStyles: Record<string, string> = {
   owner: "bg-blue-100 text-blue-800",
@@ -14,17 +13,9 @@ const roleStyles: Record<string, string> = {
 };
 
 const Profile = () => {
-  const [user, setUser] = useState<Me | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: user, isLoading } = useMe();
 
-  useEffect(() => {
-    getMe()
-      .then(setUser)
-      .catch(() => toast.error("Failed to load profile"))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-64px)] bg-gray-50">
         <Loader2 className="w-6 h-6 animate-spin text-blue-600" />

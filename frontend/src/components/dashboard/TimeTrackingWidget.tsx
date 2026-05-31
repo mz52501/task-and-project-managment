@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Timer, Play, Square, ChevronDown } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { getTimeEntries } from "@/api/tasks";
-import { getTasks } from "@/api/tasks";
-import { TimeEntry, Task } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTimeEntries, useTasks } from "@/hooks/queries/useTasks";
 import { useTimer } from "@/context/TimerContext";
-import { useWorkspace } from "@/context/WorkspaceContext";
 
 function formatMinutes(minutes: number): string {
   const h = Math.floor(minutes / 60);
@@ -23,11 +21,15 @@ function formatElapsed(seconds: number): string {
 
 const TimeTrackingWidget = () => {
   const { isRunning, elapsed, taskTitle, start, stop } = useTimer();
-  const { currentWorkspace } = useWorkspace();
-  const [entries, setEntries] = useState<TimeEntry[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const queryClient = useQueryClient();
+  const { data: entries = [], isLoading: loadingEntries } = useTimeEntries();
+  const { data: tasksData, isLoading: loadingTasks } = useTasks();
+  const loading = loadingEntries || loadingTasks;
+  const tasks = [
+    ...(tasksData?.assigned ?? []),
+    ...(tasksData?.created ?? []),
+  ].filter((t, i, arr) => arr.findIndex((x) => x.id === t.id) === i);
   const [showPicker, setShowPicker] = useState(false);
-  const [loading, setLoading] = useState(true);
   const pickerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,21 +42,6 @@ const TimeTrackingWidget = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showPicker]);
-
-  useEffect(() => {
-    if (!currentWorkspace) return;
-    Promise.all([getTimeEntries(), getTasks(currentWorkspace.id)])
-      .then(([e, t]) => {
-        setEntries(e);
-        setTasks(
-          [...t.assigned, ...t.created].filter(
-            (t, i, arr) => arr.findIndex((x) => x.id === t.id) === i
-          )
-        );
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [isRunning]);
 
   const today = new Date().toISOString().split("T")[0];
   const weekStart = (() => {
@@ -74,8 +61,7 @@ const TimeTrackingWidget = () => {
 
   async function handleStop() {
     await stop();
-    const updated = await getTimeEntries();
-    setEntries(updated);
+    queryClient.invalidateQueries({ queryKey: ["time-entries"] });
   }
 
   return (

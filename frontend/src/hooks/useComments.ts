@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getComments, createComment, updateComment, deleteCommentById } from "@/api/tasks";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { Comment } from "@/types";
@@ -6,24 +7,23 @@ import { toast } from "sonner";
 
 export function useComments(taskId: string) {
   const { currentWorkspace } = useWorkspace();
-  const [comments, setComments] = useState<Comment[]>([]);
+  const queryClient = useQueryClient();
   const [newComment, setNewComment] = useState("");
   const [editingComment, setEditingComment] = useState<string | null>(null);
   const [editCommentContent, setEditCommentContent] = useState("");
 
-  useEffect(() => {
-    if (!taskId || !currentWorkspace) return;
-    getComments(currentWorkspace.id, taskId)
-      .then(setComments)
-      .catch(() => toast.error("Failed to load comments"));
-  }, [taskId, currentWorkspace?.id]);
+  const { data: comments = [] } = useQuery({
+    queryKey: ["comments", taskId],
+    queryFn: () => getComments(currentWorkspace!.id, taskId),
+    enabled: !!taskId && !!currentWorkspace,
+  });
 
   async function postComment() {
     if (!newComment.trim() || !currentWorkspace) return;
     try {
-      const created = await createComment(currentWorkspace.id, taskId, newComment.trim());
-      setComments((prev) => [...prev, created]);
+      await createComment(currentWorkspace.id, taskId, newComment.trim());
       setNewComment("");
+      queryClient.invalidateQueries({ queryKey: ["comments", taskId] });
     } catch {
       toast.error("Failed to post comment");
     }
@@ -32,7 +32,7 @@ export function useComments(taskId: string) {
   async function deleteComment(id: string) {
     try {
       await deleteCommentById(id);
-      setComments((prev) => prev.filter((c) => c.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["comments", taskId] });
       toast.success("Comment deleted");
     } catch {
       toast.error("Failed to delete comment");
@@ -46,9 +46,9 @@ export function useComments(taskId: string) {
 
   async function saveEditComment(id: string) {
     try {
-      const updated = await updateComment(id, editCommentContent);
-      setComments((prev) => prev.map((c) => (c.id === id ? updated : c)));
+      await updateComment(id, editCommentContent);
       setEditingComment(null);
+      queryClient.invalidateQueries({ queryKey: ["comments", taskId] });
     } catch {
       toast.error("Failed to update comment");
     }

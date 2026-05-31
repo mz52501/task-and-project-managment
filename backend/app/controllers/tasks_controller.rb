@@ -31,8 +31,9 @@ class TasksController < ApplicationController
               title:       t.title,
               priority:    t.priority,
               due_date:    t.due_date,
-              stage_name:  t.workflow_stage&.name,
-              tags:        t.tags.map { |tag| { id: tag.id, name: tag.name } }
+              stage_name:     t.workflow_stage&.name,
+              stage_position: t.workflow_stage&.position,
+              tags:           t.tags.map { |tag| { id: tag.id, name: tag.name } }
             }
           }
         }
@@ -103,7 +104,7 @@ class TasksController < ApplicationController
         { id: u.id, name: "#{u.first_name} #{u.last_name}",
           initials: "#{u.first_name[0]}#{u.last_name[0]}" }
       },
-      tags: t.tags.map { |tag| { id: tag.id, name: tag.name, color: tag.color } },
+      tags: t.tags.map { |tag| { id: tag.id, name: tag.name } },
       subtask_count: t.child_tasks.count,
       comment_count: t.comments.count,
       time_tracked: time_tracked
