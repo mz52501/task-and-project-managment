@@ -67,6 +67,7 @@ class TasksController < ApplicationController
 
   def update
     if @task.update(task_params)
+      notify_stage_changed if @task.previous_changes.key?("workflow_stage_id")
       render json: @task
     else
       render json: { errors: @task.errors.full_messages }, status: :unprocessable_entity
@@ -82,6 +83,19 @@ class TasksController < ApplicationController
 
   def set_task
     @task = Task.find(params[:id])
+  end
+
+  def notify_stage_changed
+    recipients = @task.assignees.reject { |u| u.id == current_user.id }
+    recipients.each do |user|
+      Notification.create!(
+        user: user,
+        message: "\"#{@task.title}\" was moved to #{@task.workflow_stage.name}",
+        notification_type: "task_status_changed"
+      )
+    end
+  rescue => e
+    Rails.logger.error("Notification failed: #{e.message}")
   end
 
   def task_params

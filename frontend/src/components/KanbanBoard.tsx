@@ -14,7 +14,13 @@ import {
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
-import { getProjectTasks, createTask, updateTask, deleteTask as deleteTaskApi, KanbanTaskFromApi } from "@/api/tasks";
+import {
+  getProjectTasks,
+  createTask,
+  updateTask,
+  deleteTask as deleteTaskApi,
+  KanbanTaskFromApi,
+} from "@/api/tasks";
 import { WorkflowStage } from "@/types";
 import { useWorkspace } from "@/context/WorkspaceContext";
 import { Loader2 } from "lucide-react";
@@ -102,7 +108,9 @@ function KanbanBoard({ projectId, stages = [], height = "calc(100vh - 64px)" }: 
     if (!newColumnId) return;
 
     if (dragStartColumnRef.current !== newColumnId && currentWorkspace) {
-      updateTask(currentWorkspace.id, taskId, { workflow_stage_id: String(newColumnId) }).catch(() => {});
+      updateTask(currentWorkspace.id, taskId, { workflow_stage_id: String(newColumnId) }).catch(
+        () => {}
+      );
     }
     dragStartColumnRef.current = null;
 

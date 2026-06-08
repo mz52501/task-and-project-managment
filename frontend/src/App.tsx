@@ -12,16 +12,16 @@ const queryClient = new QueryClient();
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <WorkspaceProvider>
-        <TimerProvider>
-          <NotificationsProvider>
-            <AppRouter />
-            <Toaster richColors position="bottom-right" />
-          </NotificationsProvider>
-        </TimerProvider>
-      </WorkspaceProvider>
-    </TooltipProvider>
+      <TooltipProvider>
+        <WorkspaceProvider>
+          <TimerProvider>
+            <NotificationsProvider>
+              <AppRouter />
+              <Toaster richColors position="bottom-right" />
+            </NotificationsProvider>
+          </TimerProvider>
+        </WorkspaceProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

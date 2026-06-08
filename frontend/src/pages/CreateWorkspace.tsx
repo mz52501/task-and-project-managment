@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,9 @@ const CreateWorkspace = () => {
             <Building2 className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Create your workspace</h1>
-          <p className="text-gray-500 text-sm mt-1">A workspace is where your team collaborates on projects.</p>
+          <p className="text-gray-500 text-sm mt-1">
+            A workspace is where your team collaborates on projects.
+          </p>
         </div>
 
         <Card className="rounded-xl">

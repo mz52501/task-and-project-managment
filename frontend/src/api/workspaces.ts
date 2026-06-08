@@ -1,5 +1,11 @@
 import client from "./client";
-import { WorkspaceMembership, WorkspaceMemberDetail, WorkspaceInvite, InvitePreview, Workspace } from "@/types";
+import {
+  WorkspaceMembership,
+  WorkspaceMemberDetail,
+  WorkspaceInvite,
+  InvitePreview,
+  Workspace,
+} from "@/types";
 
 export const getWorkspaces = async (): Promise<WorkspaceMembership[]> => {
   const response = await client.get<WorkspaceMembership[]>("/workspaces");
@@ -27,7 +33,9 @@ export const deleteWorkspace = async (id: string): Promise<void> => {
   await client.delete(`/workspaces/${id}`);
 };
 
-export const getWorkspaceMembers = async (workspaceId: string): Promise<WorkspaceMemberDetail[]> => {
+export const getWorkspaceMembers = async (
+  workspaceId: string
+): Promise<WorkspaceMemberDetail[]> => {
   const response = await client.get<WorkspaceMemberDetail[]>(`/workspaces/${workspaceId}/members`);
   return response.data;
 };
@@ -79,7 +87,11 @@ export const acceptInvite = async (
     | { action_type: "login"; password: string }
     | { action_type: "register"; first_name: string; last_name: string; password: string }
     | { action_type: "join" }
-): Promise<{ token: string; user: { id: string; first_name: string; last_name: string; email: string; role: string }; workspace: { id: string; name: string } }> => {
+): Promise<{
+  token: string;
+  user: { id: string; first_name: string; last_name: string; email: string; role: string };
+  workspace: { id: string; name: string };
+}> => {
   const response = await client.post(`/invite/${token}/accept`, data);
   return response.data;
 };

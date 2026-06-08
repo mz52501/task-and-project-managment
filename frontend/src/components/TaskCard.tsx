@@ -70,9 +70,7 @@ function TaskCard({ task, deleteTask }: Props) {
         <Link to={`/task/${task.id}`} className="block" onClick={(e) => e.stopPropagation()}>
           <CardHeader className="pb-2 pt-3 px-3">
             <div className="flex justify-between items-start gap-2 pr-5">
-              <span className="text-sm font-medium leading-tight line-clamp-2">
-                {task.title}
-              </span>
+              <span className="text-sm font-medium leading-tight line-clamp-2">{task.title}</span>
               <Badge
                 variant="secondary"
                 className={`text-xs shrink-0 ${priorityStyles[task.priority] ?? priorityStyles.low}`}

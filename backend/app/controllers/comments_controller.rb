@@ -9,6 +9,7 @@ class CommentsController < ApplicationController
     comment = task.comments.new(content: params[:content], user: @current_user)
 
     if comment.save
+      notify_comment_added(task)
       render json: serialize(comment), status: :created
     else
       render json: { errors: comment.errors.full_messages }, status: :unprocessable_entity
@@ -36,6 +37,19 @@ class CommentsController < ApplicationController
   end
 
   private
+
+  def notify_comment_added(task)
+    commenter_name = "#{@current_user.first_name} #{@current_user.last_name}"
+    task.assignees.reject { |u| u.id == @current_user.id }.each do |user|
+      Notification.create!(
+        user: user,
+        message: "#{commenter_name} commented on \"#{task.title}\"",
+        notification_type: "comment_added"
+      )
+    end
+  rescue => e
+    Rails.logger.error("Notification failed: #{e.message}")
+  end
 
   def serialize(comment)
     comment.as_json.merge(

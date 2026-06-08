@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,12 @@ const InviteAccept = () => {
 
     const data = preview.existing_account
       ? ({ action_type: "login", password } as const)
-      : ({ action_type: "register", first_name: firstName, last_name: lastName, password } as const);
+      : ({
+          action_type: "register",
+          first_name: firstName,
+          last_name: lastName,
+          password,
+        } as const);
 
     const result = await acceptInvite(token, data).catch(() => {
       toast.error("Failed to accept invite");
@@ -105,11 +110,10 @@ const InviteAccept = () => {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gray-900 mb-4">
             <Building2 className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Join {preview?.workspace_name}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Join {preview?.workspace_name}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {preview?.invited_by_name} invited you as <span className="capitalize font-medium">{preview?.role}</span>
+            {preview?.invited_by_name} invited you as{" "}
+            <span className="capitalize font-medium">{preview?.role}</span>
           </p>
         </div>
 
@@ -170,8 +174,8 @@ const InviteAccept = () => {
                   {submitting
                     ? "..."
                     : preview?.existing_account
-                    ? "Log in and join"
-                    : "Create account and join"}
+                      ? "Log in and join"
+                      : "Create account and join"}
                 </Button>
               </form>
             )}

@@ -7,7 +7,7 @@ import { useNotificationsContext } from "@/context/NotificationsContext";
 import { NotificationItem } from "@/components/notifications/NotificationItem";
 
 export default function AppLayout() {
-  const { unreadCount, notifications, markAllRead } = useNotificationsContext();
+  const { unreadCount, notifications, markAllRead, latestNotification, dismissLatest } = useNotificationsContext();
 
   return (
     <SidebarProvider>
@@ -27,6 +27,18 @@ export default function AppLayout() {
             </div>
 
             <div className="flex items-center gap-2">
+              <div className="relative">
+                {latestNotification && (
+                  <div
+                    className="absolute right-0 top-11 z-50 w-64 animate-in fade-in slide-in-from-top-2 duration-200"
+                    onMouseEnter={dismissLatest}
+                  >
+                    <div className="absolute -top-1.5 right-3 h-3 w-3 rotate-45 bg-white border-l border-t border-gray-200" />
+                    <div className="rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                      <NotificationItem notification={latestNotification} variant="row" />
+                    </div>
+                  </div>
+                )}
               <Popover>
                 <PopoverTrigger
                   className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 cursor-pointer"
@@ -55,7 +67,9 @@ export default function AppLayout() {
                     {notifications.length === 0 ? (
                       <p className="text-sm text-gray-400 text-center py-8">No notifications</p>
                     ) : (
-                      notifications.slice(0, 5).map((n) => <NotificationItem key={n.id} notification={n} variant="row" />)
+                      notifications
+                        .slice(0, 5)
+                        .map((n) => <NotificationItem key={n.id} notification={n} variant="row" />)
                     )}
                   </div>
                   <Link
@@ -66,6 +80,7 @@ export default function AppLayout() {
                   </Link>
                 </PopoverContent>
               </Popover>
+              </div>
             </div>
           </header>
 

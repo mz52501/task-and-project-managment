@@ -88,10 +88,8 @@ export function CommentsCard({ taskId }: Props) {
                         autoFocus
                       />
                       <div className="flex gap-2">
-                        <Button  onClick={() => saveEditComment(c.id)}>
-                          Save
-                        </Button>
-                        <Button  variant="outline" onClick={() => setEditingComment(null)}>
+                        <Button onClick={() => saveEditComment(c.id)}>Save</Button>
+                        <Button variant="outline" onClick={() => setEditingComment(null)}>
                           Cancel
                         </Button>
                       </div>
@@ -128,9 +126,7 @@ export function CommentsCard({ taskId }: Props) {
                 onChange={(e) => setNewComment(e.target.value)}
                 className="mb-2"
               />
-              <Button  onClick={postComment}>
-                Post Comment
-              </Button>
+              <Button onClick={postComment}>Post Comment</Button>
             </div>
           </div>
         </div>

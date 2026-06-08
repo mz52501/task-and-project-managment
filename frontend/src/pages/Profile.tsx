@@ -44,7 +44,10 @@ const Profile = () => {
                   {user.first_name} {user.last_name}
                 </h1>
                 <p className="text-gray-500 text-sm">{user.email}</p>
-                <Badge className={`mt-1 capitalize ${roleStyles[user.role] ?? "bg-gray-100 text-gray-800"}`} variant="secondary">
+                <Badge
+                  className={`mt-1 capitalize ${roleStyles[user.role] ?? "bg-gray-100 text-gray-800"}`}
+                  variant="secondary"
+                >
                   {user.role}
                 </Badge>
               </div>
@@ -59,11 +62,15 @@ const Profile = () => {
           </CardHeader>
           <CardContent className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">First Name</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                First Name
+              </p>
               <p className="text-sm text-gray-800 mt-1">{user.first_name}</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Last Name</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                Last Name
+              </p>
               <p className="text-sm text-gray-800 mt-1">{user.last_name}</p>
             </div>
             <div>

@@ -1,7 +1,16 @@
 class TimeEntriesController < ApplicationController
   def index
-    entries = TimeEntry.where(user_id: @current_user.id).order(work_date: :desc)
-    render json: entries
+    entries = TimeEntry
+      .where(user_id: @current_user.id)
+      .includes(task: :project)
+      .order(work_date: :desc)
+    render json: entries.map { |e|
+      e.as_json.merge(
+        task_title: e.task.title,
+        project_name: e.task.project.name,
+        project_id: e.task.project.id
+      )
+    }
   end
 
   def create

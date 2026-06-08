@@ -38,6 +38,9 @@ export interface TimeEntry {
   comment?: string;
   created_at: string;
   updated_at: string;
+  task_title?: string;
+  project_name?: string;
+  project_id?: string;
 }
 
 export interface CreateTaskRequest {

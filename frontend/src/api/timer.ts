@@ -13,7 +13,9 @@ export const getTimerStatus = async (workspaceId: string): Promise<TimerStatus> 
 };
 
 export const startTimer = async (workspaceId: string, taskId: string): Promise<TimerStatus> => {
-  const res = await client.post<TimerStatus>(`/workspaces/${workspaceId}/timer/start`, { task_id: taskId });
+  const res = await client.post<TimerStatus>(`/workspaces/${workspaceId}/timer/start`, {
+    task_id: taskId,
+  });
   return res.data;
 };
 

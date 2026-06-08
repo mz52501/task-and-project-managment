@@ -40,7 +40,10 @@ export const getProject = async (workspaceId: string, id: string): Promise<Proje
   return response.data;
 };
 
-export const createProject = async (workspaceId: string, data: CreateProjectRequest): Promise<Project> => {
+export const createProject = async (
+  workspaceId: string,
+  data: CreateProjectRequest
+): Promise<Project> => {
   const response = await client.post<Project>(base(workspaceId), data);
   return response.data;
 };

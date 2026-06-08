@@ -43,6 +43,12 @@ class WorkspacesController < ApplicationController
 
   private
 
+  def set_workspace
+    @workspace = Workspace.find(params[:id])
+    wm = WorkspaceMember.find_by(workspace_id: @workspace.id, user_id: current_user.id)
+    render json: { error: "Forbidden" }, status: :forbidden unless wm
+  end
+
   def workspace_params
     params.permit(:name, :description, :logo_url)
   end

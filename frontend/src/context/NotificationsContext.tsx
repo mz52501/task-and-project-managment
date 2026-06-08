@@ -4,6 +4,8 @@ import { useNotifications, AppNotification } from "@/hooks/useNotifications";
 interface NotificationsContextValue {
   notifications: AppNotification[];
   unreadCount: number;
+  latestNotification: AppNotification | null;
+  dismissLatest: () => void;
   markAllRead: () => Promise<void>;
   markRead: (id: string) => Promise<void>;
   deleteNotification: (id: string) => Promise<void>;
@@ -12,6 +14,8 @@ interface NotificationsContextValue {
 const NotificationsContext = createContext<NotificationsContextValue>({
   notifications: [],
   unreadCount: 0,
+  latestNotification: null,
+  dismissLatest: () => {},
   markAllRead: async () => {},
   markRead: async () => {},
   deleteNotification: async () => {},

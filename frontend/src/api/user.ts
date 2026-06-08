@@ -31,7 +31,9 @@ export const getMe = async (): Promise<Me> => {
   return res.data;
 };
 
-export const updateMe = async (data: Partial<Pick<Me, "first_name" | "last_name" | "email" | "current_workspace_id">>): Promise<Me> => {
+export const updateMe = async (
+  data: Partial<Pick<Me, "first_name" | "last_name" | "email" | "current_workspace_id">>
+): Promise<Me> => {
   const res = await client.patch<Me>("/me", data);
   return res.data;
 };

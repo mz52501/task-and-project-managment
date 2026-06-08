@@ -41,7 +41,10 @@ export const getMyTasks = async (workspaceId: string): Promise<MyTasksGroup[]> =
   return response.data;
 };
 
-export const getProjectTasks = async (workspaceId: string, projectId: string): Promise<KanbanTaskFromApi[]> => {
+export const getProjectTasks = async (
+  workspaceId: string,
+  projectId: string
+): Promise<KanbanTaskFromApi[]> => {
   const response = await client.get<KanbanTaskFromApi[]>(taskBase(workspaceId), {
     params: { project_id: projectId },
   });
@@ -58,7 +61,11 @@ export const createTask = async (workspaceId: string, data: CreateTaskRequest): 
   return response.data;
 };
 
-export const updateTask = async (workspaceId: string, id: string, data: Partial<CreateTaskRequest>): Promise<Task> => {
+export const updateTask = async (
+  workspaceId: string,
+  id: string,
+  data: Partial<CreateTaskRequest>
+): Promise<Task> => {
   const response = await client.patch<Task>(`${taskBase(workspaceId)}/${id}`, data);
   return response.data;
 };
@@ -72,13 +79,21 @@ export const getComments = async (workspaceId: string, taskId: string): Promise<
   return response.data;
 };
 
-export const createComment = async (workspaceId: string, taskId: string, content: string): Promise<Comment> => {
-  const response = await client.post<Comment>(`${taskBase(workspaceId)}/${taskId}/comments`, { content });
+export const createComment = async (
+  workspaceId: string,
+  taskId: string,
+  content: string
+): Promise<Comment> => {
+  const response = await client.post<Comment>(`${taskBase(workspaceId)}/${taskId}/comments`, {
+    content,
+  });
   return response.data;
 };
 
 export const getChildTasks = async (workspaceId: string, parentTaskId: string): Promise<Task[]> => {
-  const response = await client.get<Task[]>(taskBase(workspaceId), { params: { parent_task_id: parentTaskId } });
+  const response = await client.get<Task[]>(taskBase(workspaceId), {
+    params: { parent_task_id: parentTaskId },
+  });
   return response.data;
 };
 
@@ -95,12 +110,22 @@ export const getTaskAssignees = async (workspaceId: string, taskId: string): Pro
   return response.data;
 };
 
-export const addTaskAssignee = async (workspaceId: string, taskId: string, userId: string): Promise<User[]> => {
-  const response = await client.post<User[]>(`${taskBase(workspaceId)}/${taskId}/assignments`, { user_id: userId });
+export const addTaskAssignee = async (
+  workspaceId: string,
+  taskId: string,
+  userId: string
+): Promise<User[]> => {
+  const response = await client.post<User[]>(`${taskBase(workspaceId)}/${taskId}/assignments`, {
+    user_id: userId,
+  });
   return response.data;
 };
 
-export const removeTaskAssignee = async (workspaceId: string, taskId: string, userId: string): Promise<void> => {
+export const removeTaskAssignee = async (
+  workspaceId: string,
+  taskId: string,
+  userId: string
+): Promise<void> => {
   await client.delete(`${taskBase(workspaceId)}/${taskId}/assignments/${userId}`);
 };
 

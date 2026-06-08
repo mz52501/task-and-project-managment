@@ -40,6 +40,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadWorkspaces();
   }, []);
 
@@ -56,7 +57,9 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const isAdmin = currentWorkspace?.role === "admin";
 
   return (
-    <WorkspaceContext.Provider value={{ workspaces, currentWorkspace, isAdmin, loading, switchWorkspace, refreshWorkspaces }}>
+    <WorkspaceContext.Provider
+      value={{ workspaces, currentWorkspace, isAdmin, loading, switchWorkspace, refreshWorkspaces }}
+    >
       {children}
     </WorkspaceContext.Provider>
   );

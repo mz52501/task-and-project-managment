@@ -46,6 +46,8 @@ const Task = () => {
   const [stageId, setStageId] = useState("");
   const [priority, setPriority] = useState("High");
   const [estimate, setEstimate] = useState("");
+  const [assignees, setAssignees] = useState<{ id: string; name: string; initials: string }[]>([]);
+  const [dueDate, setDueDate] = useState<string | undefined>(undefined);
 
   const timeTracking = useTaskTimeEntries(id ?? "");
   const { totalTracked } = timeTracking;
@@ -60,6 +62,8 @@ const Task = () => {
         setStageId(t.workflow_stage_id);
         setPriority(t.priority.charAt(0).toUpperCase() + t.priority.slice(1));
         if (t.estimated_minutes) setEstimate(minutesToDisplay(t.estimated_minutes));
+        setAssignees(t.assignees);
+        setDueDate(t.due_date);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -76,8 +80,16 @@ const Task = () => {
   function handlePriorityChange(val: string) {
     setPriority(val);
     if (id && currentWorkspace)
-      updateTask(currentWorkspace.id, id, { priority: val.toLowerCase() as "low" | "medium" | "high" }).catch(() =>
-        toast.error("Failed to update priority")
+      updateTask(currentWorkspace.id, id, {
+        priority: val.toLowerCase() as "low" | "medium" | "high",
+      }).catch(() => toast.error("Failed to update priority"));
+  }
+
+  function handleDueDateChange(val: string) {
+    setDueDate(val || undefined);
+    if (id && currentWorkspace)
+      updateTask(currentWorkspace.id, id, { due_date: val || undefined }).catch(() =>
+        toast.error("Failed to update due date")
       );
   }
 
@@ -106,8 +118,6 @@ const Task = () => {
     );
   }
 
-  const assigneeNames = task.assignees.map((a) => a.name).join(", ") || task.created_by_name;
-
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -118,8 +128,9 @@ const Task = () => {
               description={task.description}
               projectName={task.project_name}
               projectId={task.project_id}
-              assigneeNames={assigneeNames}
-              dueDate={task.due_date}
+              taskId={task.id}
+              assignees={assignees}
+              dueDate={dueDate}
               stageId={stageId}
               stages={task.stages}
               priority={priority}
@@ -132,6 +143,8 @@ const Task = () => {
               onStatusChange={handleStatusChange}
               onPriorityChange={handlePriorityChange}
               onTimerToggle={() => (isThisTaskRunning ? stop() : start(task.id, task.title))}
+              onAssigneesChange={setAssignees}
+              onDueDateChange={handleDueDateChange}
             />
 
             <SubtasksCard

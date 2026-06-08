@@ -35,7 +35,9 @@ export function ProjectCard({ project }: Props) {
     <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-2">
         <h2 className="text-lg font-semibold text-gray-800 leading-tight">{project.name}</h2>
-        <span className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ml-2 ${statusColors[project.status] ?? "bg-gray-100 text-gray-800"}`}>
+        <span
+          className={`text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap ml-2 ${statusColors[project.status] ?? "bg-gray-100 text-gray-800"}`}
+        >
           {statusLabels[project.status] ?? project.status}
         </span>
       </div>
@@ -46,7 +48,9 @@ export function ProjectCard({ project }: Props) {
 
       <div className="text-sm text-gray-600 flex justify-between mb-1">
         <span>Progress</span>
-        <span>{project.completed_tasks ?? 0}/{project.total_tasks ?? 0} tasks</span>
+        <span>
+          {project.completed_tasks ?? 0}/{project.total_tasks ?? 0} tasks
+        </span>
       </div>
       <div className="w-full bg-gray-200 h-2 rounded-full mb-4">
         <div
@@ -69,7 +73,10 @@ export function ProjectCard({ project }: Props) {
       </div>
 
       <div className="flex justify-between items-center pt-3 border-t">
-        <Link to={`/projects/${project.id}`} className="text-blue-600 hover:underline text-sm font-medium">
+        <Link
+          to={`/projects/${project.id}`}
+          className="text-blue-600 hover:underline text-sm font-medium"
+        >
           Open Project
         </Link>
       </div>

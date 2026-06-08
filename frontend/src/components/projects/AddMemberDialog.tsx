@@ -1,8 +1,20 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { addProjectMember, ProjectDetail, ProjectMemberDetail } from "@/api/projects";
 import { useWorkspace } from "@/context/WorkspaceContext";
@@ -30,7 +42,12 @@ export function AddMemberDialog({ project, open, onOpenChange, onAdded }: Props)
     if (!currentWorkspace || !selectedUserId) return;
     setAdding(true);
     try {
-      const newMember = await addProjectMember(currentWorkspace.id, project.id, selectedUserId, selectedRole);
+      const newMember = await addProjectMember(
+        currentWorkspace.id,
+        project.id,
+        selectedUserId,
+        selectedRole
+      );
       onAdded(newMember);
       onOpenChange(false);
       setSelectedUserId("");
@@ -62,7 +79,9 @@ export function AddMemberDialog({ project, open, onOpenChange, onAdded }: Props)
                 </SelectTrigger>
                 <SelectContent>
                   {available.map((wm) => (
-                    <SelectItem key={wm.user_id} value={wm.user_id}>{wm.name}</SelectItem>
+                    <SelectItem key={wm.user_id} value={wm.user_id}>
+                      {wm.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -70,7 +89,9 @@ export function AddMemberDialog({ project, open, onOpenChange, onAdded }: Props)
             <div className="space-y-1.5">
               <Label>Role</Label>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="developer">Developer</SelectItem>
                   <SelectItem value="client">Client</SelectItem>
@@ -81,8 +102,13 @@ export function AddMemberDialog({ project, open, onOpenChange, onAdded }: Props)
           </div>
         )}
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={adding}>Cancel</Button>
-          <Button onClick={handleAdd} disabled={adding || !selectedUserId || available.length === 0}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={adding}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAdd}
+            disabled={adding || !selectedUserId || available.length === 0}
+          >
             {adding && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
             Add
           </Button>

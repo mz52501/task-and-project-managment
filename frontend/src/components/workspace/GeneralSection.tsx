@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +17,12 @@ export function GeneralSection() {
     e.preventDefault();
     if (!currentWorkspace || !wsName.trim()) return;
     setSaving(true);
-    const updated = await updateWorkspace(currentWorkspace.id, { name: wsName.trim() }).catch(() => {
-      toast.error("Failed to update workspace");
-      return null;
-    });
+    const updated = await updateWorkspace(currentWorkspace.id, { name: wsName.trim() }).catch(
+      () => {
+        toast.error("Failed to update workspace");
+        return null;
+      }
+    );
     setSaving(false);
     if (updated) {
       await refreshWorkspaces();
@@ -40,10 +42,17 @@ export function GeneralSection() {
         <form onSubmit={handleSubmit} className="flex gap-3">
           <div className="flex-1 space-y-2">
             <Label htmlFor="wsName">Workspace name</Label>
-            <Input id="wsName" value={wsName} onChange={(e) => setWsName(e.target.value)} required />
+            <Input
+              id="wsName"
+              value={wsName}
+              onChange={(e) => setWsName(e.target.value)}
+              required
+            />
           </div>
           <div className="flex items-end">
-            <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Save"}
+            </Button>
           </div>
         </form>
       </CardContent>

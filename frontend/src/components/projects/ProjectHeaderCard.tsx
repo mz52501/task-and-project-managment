@@ -26,7 +26,10 @@ export function ProjectHeaderCard({ project, onEdit, onAddMember }: Props) {
           <div className="flex-1">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-              <Badge className={`capitalize ${statusStyles[project.status] ?? ""}`} variant="secondary">
+              <Badge
+                className={`capitalize ${statusStyles[project.status] ?? ""}`}
+                variant="secondary"
+              >
                 {project.status.replace("_", " ")}
               </Badge>
             </div>
@@ -45,7 +48,10 @@ export function ProjectHeaderCard({ project, onEdit, onAddMember }: Props) {
               )}
               <div className="flex items-center">
                 {project.members.slice(0, 5).map((m, i) => (
-                  <Avatar key={m.id} className={`w-7 h-7 border-2 border-white ${i > 0 ? "-ml-2" : ""}`}>
+                  <Avatar
+                    key={m.id}
+                    className={`w-7 h-7 border-2 border-white ${i > 0 ? "-ml-2" : ""}`}
+                  >
                     <AvatarFallback className="text-xs bg-gray-100">{m.initials}</AvatarFallback>
                   </Avatar>
                 ))}

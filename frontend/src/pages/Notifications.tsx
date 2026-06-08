@@ -7,7 +7,8 @@ import { useNotificationsContext } from "@/context/NotificationsContext";
 import { NotificationItem } from "@/components/notifications/NotificationItem";
 
 const Notifications = () => {
-  const { notifications, unreadCount, markAllRead, markRead, deleteNotification } = useNotificationsContext();
+  const { notifications, unreadCount, markAllRead, markRead, deleteNotification } =
+    useNotificationsContext();
   const [activeFilter, setActiveFilter] = useState<"all" | "unread" | "read">("all");
 
   const filtered = notifications.filter((n) => {

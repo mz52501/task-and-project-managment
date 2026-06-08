@@ -73,7 +73,7 @@ export function SubtasksCard({ taskId, projectId, defaultStageId }: Props) {
             onKeyDown={(e) => e.key === "Enter" && addSubtask()}
             className="flex-1"
           />
-          <Button  onClick={addSubtask} className="cursor-pointer">
+          <Button onClick={addSubtask} className="cursor-pointer">
             <Plus className="w-4 h-4 mr-1" /> Add
           </Button>
         </div>

@@ -2,9 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { createConsumer, Subscription } from "@rails/actioncable";
 import client from "@/api/client";
 
+import { NotificationType } from "@/types/notification";
+
 export interface AppNotification {
   id: string;
   message: string;
+  notification_type: NotificationType;
   read: boolean;
   created_at: string;
 }
@@ -12,7 +15,14 @@ export interface AppNotification {
 export function useNotifications() {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [latestNotification, setLatestNotification] = useState<AppNotification | null>(null);
   const subscriptionRef = useRef<Subscription | null>(null);
+  const latestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const dismissLatest = () => {
+    if (latestTimerRef.current) clearTimeout(latestTimerRef.current);
+    setLatestNotification(null);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -24,6 +34,10 @@ export function useNotifications() {
       received(data: AppNotification) {
         setNotifications((prev) => [data, ...prev]);
         if (!data.read) setUnreadCount((c) => c + 1);
+
+        setLatestNotification(data);
+        if (latestTimerRef.current) clearTimeout(latestTimerRef.current);
+        latestTimerRef.current = setTimeout(() => setLatestNotification(null), 4000);
       },
     });
 
@@ -39,6 +53,7 @@ export function useNotifications() {
     return () => {
       subscriptionRef.current?.unsubscribe();
       cable.disconnect();
+      if (latestTimerRef.current) clearTimeout(latestTimerRef.current);
     };
   }, []);
 
@@ -51,9 +66,7 @@ export function useNotifications() {
 
   const markRead = async (id: string) => {
     await client.patch(`/notifications/${id}/mark_read`);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
     setUnreadCount((c) => Math.max(0, c - 1));
   };
 
@@ -66,5 +79,5 @@ export function useNotifications() {
     });
   };
 
-  return { notifications, unreadCount, markAllRead, markRead, deleteNotification };
+  return { notifications, unreadCount, latestNotification, dismissLatest, markAllRead, markRead, deleteNotification };
 }

@@ -7,9 +7,9 @@ import { stageBadgeStyle } from "@/constants/task";
 import { useMyTasks } from "@/hooks/queries/useTasks";
 
 const priorityStyles: Record<string, string> = {
-  high:   "bg-red-100 text-red-800 border-red-200",
+  high: "bg-red-100 text-red-800 border-red-200",
   medium: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  low:    "bg-green-100 text-green-800 border-green-200",
+  low: "bg-green-100 text-green-800 border-green-200",
 };
 
 function formatDueDate(dateStr: string | null): { label: string; className: string } | null {
@@ -19,8 +19,8 @@ function formatDueDate(dateStr: string | null): { label: string; className: stri
   today.setHours(0, 0, 0, 0);
   due.setHours(0, 0, 0, 0);
   const diff = Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  if (diff < 0)   return { label: "Overdue",      className: "text-red-600" };
-  if (diff === 0) return { label: "Due today",    className: "text-orange-600" };
+  if (diff < 0) return { label: "Overdue", className: "text-red-600" };
+  if (diff === 0) return { label: "Due today", className: "text-orange-600" };
   if (diff === 1) return { label: "Due tomorrow", className: "text-yellow-600" };
   return { label: due.toLocaleDateString(), className: "text-gray-400" };
 }
@@ -32,7 +32,6 @@ const MyTasks = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">My Tasks</h1>
           <p className="text-sm text-gray-600 mt-1">
@@ -48,7 +47,9 @@ const MyTasks = () => {
           <div className="text-center py-24 text-gray-500">
             <CheckSquare className="w-10 h-10 mx-auto mb-3 text-gray-300" />
             <p className="text-lg font-medium">No tasks assigned to you</p>
-            <p className="text-sm mt-1">Tasks assigned to you across all projects will appear here.</p>
+            <p className="text-sm mt-1">
+              Tasks assigned to you across all projects will appear here.
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -124,7 +125,9 @@ const MyTasks = () => {
                                       </div>
                                       <div className="flex items-center gap-4 text-xs text-gray-500 mt-1 flex-wrap">
                                         {due && (
-                                          <span className={`inline-flex items-center gap-1 ${due.className}`}>
+                                          <span
+                                            className={`inline-flex items-center gap-1 ${due.className}`}
+                                          >
                                             <Calendar className="w-3 h-3" />
                                             {due.label}
                                           </span>

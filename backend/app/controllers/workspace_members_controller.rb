@@ -20,6 +20,7 @@ class WorkspaceMembersController < ApplicationController
     return if performed?
     wm = @workspace.workspace_members.find(params[:id])
     if wm.update(role: params[:role])
+      notify_role_changed(wm)
       render json: { id: wm.id, role: wm.role }
     else
       render json: { errors: wm.errors.full_messages }, status: :unprocessable_entity
@@ -32,5 +33,18 @@ class WorkspaceMembersController < ApplicationController
     wm = @workspace.workspace_members.find(params[:id])
     wm.destroy
     head :no_content
+  end
+
+  private
+
+  def notify_role_changed(wm)
+    return if wm.user_id == current_user.id
+    Notification.create!(
+      user: wm.user,
+      message: "Your role in \"#{@workspace.name}\" was changed to #{wm.role}",
+      notification_type: "workspace_role_changed"
+    )
+  rescue => e
+    Rails.logger.error("Notification failed: #{e.message}")
   end
 end

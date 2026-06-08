@@ -25,10 +25,9 @@ const TimeTrackingWidget = () => {
   const { data: entries = [], isLoading: loadingEntries } = useTimeEntries();
   const { data: tasksData, isLoading: loadingTasks } = useTasks();
   const loading = loadingEntries || loadingTasks;
-  const tasks = [
-    ...(tasksData?.assigned ?? []),
-    ...(tasksData?.created ?? []),
-  ].filter((t, i, arr) => arr.findIndex((x) => x.id === t.id) === i);
+  const tasks = [...(tasksData?.assigned ?? []), ...(tasksData?.created ?? [])].filter(
+    (t, i, arr) => arr.findIndex((x) => x.id === t.id) === i
+  );
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
 

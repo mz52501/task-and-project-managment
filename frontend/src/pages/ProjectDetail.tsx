@@ -21,7 +21,7 @@ const ProjectDetail = () => {
   function updateCache(updater: (prev: ProjectDetailType) => ProjectDetailType) {
     queryClient.setQueryData(
       ["project", currentWorkspace?.id, id],
-      (prev: ProjectDetailType | undefined) => prev ? updater(prev) : prev
+      (prev: ProjectDetailType | undefined) => (prev ? updater(prev) : prev)
     );
   }
 

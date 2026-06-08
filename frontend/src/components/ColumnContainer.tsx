@@ -1,3 +1,4 @@
+import React from "react";
 import { Column, Id, KanbanTask as Task } from "@/types";
 import { SortableContext } from "@dnd-kit/sortable";
 import TaskCard from "./TaskCard";

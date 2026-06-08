@@ -17,6 +17,7 @@ import CreateWorkspace from "@/pages/CreateWorkspace";
 import WorkspaceSettings from "@/pages/WorkspaceSettings";
 import InviteAccept from "@/pages/InviteAccept";
 import MyTasks from "@/pages/MyTasks";
+import Timesheet from "@/pages/Timesheet";
 import Logout from "@/pages/Logout";
 import NotFound from "@/pages/NotFound";
 
@@ -69,6 +70,7 @@ export default function AppRouter() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="settings" element={<WorkspaceSettings />} />
               <Route path="tasks" element={<MyTasks />} />
+              <Route path="time" element={<Timesheet />} />
             </Route>
           </Route>
         </Route>

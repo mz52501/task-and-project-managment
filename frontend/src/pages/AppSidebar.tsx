@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   CheckSquare,
+  Clock,
   Bell,
   User,
   Settings,
@@ -37,6 +38,7 @@ const mainItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "My Tasks", url: "/tasks", icon: CheckSquare },
+  { title: "Timesheet", url: "/time", icon: Clock },
 ];
 
 const accountItems = [
@@ -59,7 +61,6 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-gray-200">
       <SidebarContent className="bg-white">
-
         {/* Workspace switcher */}
         <SidebarGroup>
           <SidebarGroupContent>
@@ -111,7 +112,11 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <NavLink to={item.url} end={item.url === "/"}>
                     {({ isActive }) => (
-                      <SidebarMenuButton isActive={isActive} tooltip={item.title} className="w-full">
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={item.title}
+                        className="w-full"
+                      >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
@@ -132,7 +137,11 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <NavLink to={item.url}>
                     {({ isActive }) => (
-                      <SidebarMenuButton isActive={isActive} tooltip={item.title} className="w-full">
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={item.title}
+                        className="w-full"
+                      >
                         <div className="relative flex-none">
                           <item.icon className="h-4 w-4" />
                           {item.title === "Notifications" && unreadCount > 0 && (
@@ -160,7 +169,6 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
       </SidebarContent>
     </Sidebar>
   );

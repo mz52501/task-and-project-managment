@@ -44,7 +44,9 @@ const CreateProject = () => {
 
   useEffect(() => {
     if (!currentWorkspace) return;
-    getUsers(currentWorkspace.id).then(setUsers).catch(() => {});
+    getUsers(currentWorkspace.id)
+      .then(setUsers)
+      .catch(() => {});
   }, [currentWorkspace?.id]);
 
   function toggleMember(id: string) {
@@ -56,9 +58,7 @@ const CreateProject = () => {
   }
 
   function setMemberRole(id: string, role: MemberRole) {
-    setSelectedMembers((prev) =>
-      prev.map((m) => (m.user_id === id ? { ...m, role } : m))
-    );
+    setSelectedMembers((prev) => prev.map((m) => (m.user_id === id ? { ...m, role } : m)));
   }
 
   function addTag() {
@@ -144,13 +144,17 @@ const CreateProject = () => {
                     const selected = STATUS_OPTIONS.find((s) => s.value === status);
                     return (
                       <Select value={status} onValueChange={(v) => setStatus(v as ProjectStatus)}>
-                        <SelectTrigger className={`w-full font-medium border-0 ${selected?.color ?? ""}`}>
+                        <SelectTrigger
+                          className={`w-full font-medium border-0 ${selected?.color ?? ""}`}
+                        >
                           <span>{selected?.label}</span>
                         </SelectTrigger>
                         <SelectContent>
                           {STATUS_OPTIONS.map((s) => (
                             <SelectItem key={s.value} value={s.value}>
-                              <span className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${s.color}`}>
+                              <span
+                                className={`w-full px-2 py-0.5 rounded-md text-xs font-medium ${s.color}`}
+                              >
                                 {s.label}
                               </span>
                             </SelectItem>
@@ -210,9 +214,7 @@ const CreateProject = () => {
                       <div
                         key={user.id}
                         className={`flex items-center justify-between px-3 py-2 rounded-lg border transition-colors ${
-                          isSelected
-                            ? "border-gray-400 bg-gray-50"
-                            : "border-gray-200 bg-white"
+                          isSelected ? "border-gray-400 bg-gray-50" : "border-gray-200 bg-white"
                         }`}
                       >
                         <button
@@ -238,7 +240,10 @@ const CreateProject = () => {
                             value={selected.role}
                             onValueChange={(v) => setMemberRole(user.id, v as MemberRole)}
                           >
-                            <SelectTrigger className="w-32 h-7 text-xs border-gray-300" onClick={(e) => e.stopPropagation()}>
+                            <SelectTrigger
+                              className="w-32 h-7 text-xs border-gray-300"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>

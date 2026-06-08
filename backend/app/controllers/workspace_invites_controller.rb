@@ -28,6 +28,7 @@ class WorkspaceInvitesController < ApplicationController
       end
     end
 
+    notify_invited_user(invite)
     render json: serialize_invite(invite), status: :created
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
@@ -40,6 +41,18 @@ class WorkspaceInvitesController < ApplicationController
   end
 
   private
+
+  def notify_invited_user(invite)
+    user = User.find_by(email: invite.email)
+    return unless user
+    Notification.create!(
+      user: user,
+      message: "#{current_user.first_name} #{current_user.last_name} invited you to join \"#{@workspace.name}\"",
+      notification_type: "workspace_invite"
+    )
+  rescue => e
+    Rails.logger.error("Notification failed: #{e.message}")
+  end
 
   def serialize_invite(invite)
     frontend_base = ENV.fetch("FRONTEND_URL", "http://localhost:5173")
